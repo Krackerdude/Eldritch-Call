@@ -1,0 +1,1 @@
+NPX Serve to open the game on a local server

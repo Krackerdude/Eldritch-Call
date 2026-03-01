@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eldritch Call: Sigils of The DreamLands</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         LOADING SCREEN
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="loading-screen">
+        <div class="loading-sigil">
+            <svg viewBox="0 0 100 100">
+                <path d="M50 5 L61 39 L97 39 L68 61 L79 95 L50 73 L21 95 L32 61 L3 39 L39 39 Z"/>
+                <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        </div>
+        <div class="loading-text">Awakening...</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MAIN MENU SCREEN
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="main-menu-screen">
+        <div id="menu-bg"></div>
+        <canvas id="menu-sigils-canvas"></canvas>
+        <div id="menu-particles"></div>
+        <div class="menu-sigil-ring menu-ring-1"></div>
+        <div class="menu-sigil-ring menu-ring-2"></div>
+        <div class="menu-sigil-ring menu-ring-3"></div>
+        <div id="menu-vignette"></div>
+        
+        <!-- Floating Eyes -->
+        <div class="menu-floating-eye" style="top: 15%; left: 10%;">
+            <svg width="40" height="25" viewBox="0 0 40 25">
+                <ellipse cx="20" cy="12" rx="18" ry="10" fill="none" stroke="#9b72cf" stroke-width="1.5"/>
+                <circle cx="20" cy="12" r="5" fill="#6b2d9e"/>
+                <circle cx="20" cy="12" r="2" fill="#d4a84b"/>
+            </svg>
+        </div>
+        <div class="menu-floating-eye" style="top: 25%; right: 12%; animation-delay: -3s;">
+            <svg width="30" height="20" viewBox="0 0 40 25">
+                <ellipse cx="20" cy="12" rx="18" ry="10" fill="none" stroke="#9b72cf" stroke-width="1.5"/>
+                <circle cx="20" cy="12" r="5" fill="#6b2d9e"/>
+                <circle cx="20" cy="12" r="2" fill="#d4a84b"/>
+            </svg>
+        </div>
+
+        <!-- Title Section -->
+        <div id="menu-title-section">
+            <div id="menu-eye-sigil">
+                <svg viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#d4a84b" stroke-width="2" opacity="0.6"/>
+                    <circle cx="50" cy="50" r="35" fill="none" stroke="#d4a84b" stroke-width="1" stroke-dasharray="4 4"/>
+                    <ellipse cx="50" cy="50" rx="28" ry="18" fill="none" stroke="#d4a84b" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="12" fill="#6b2d9e" stroke="#9b72cf" stroke-width="1"/>
+                    <circle cx="50" cy="50" r="5" fill="#d4a84b"/>
+                    <circle cx="53" cy="47" r="2" fill="#f5d998" opacity="0.8"/>
+                </svg>
+            </div>
+            <h1 id="menu-game-title">Eldritch Call</h1>
+            <div class="menu-title-ornament"></div>
+            <h2 id="menu-game-subtitle">Sigils of The DreamLands</h2>
+        </div>
+        
+        <!-- Menu Buttons -->
+        <div id="menu-buttons-section">
+            <button class="main-menu-btn" id="btn-new-game">
+                <div class="menu-btn-bg"></div>
+                <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                <div class="menu-btn-corner menu-btn-corner-br"></div>
+                <div class="menu-btn-glow"></div>
+                <span class="menu-btn-text">New Game</span>
+            </button>
+            <button class="main-menu-btn" id="btn-load-game" disabled>
+                <div class="menu-btn-bg"></div>
+                <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                <div class="menu-btn-corner menu-btn-corner-br"></div>
+                <span class="menu-btn-text">Load Game</span>
+            </button>
+            <button class="main-menu-btn" id="btn-options">
+                <div class="menu-btn-bg"></div>
+                <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                <div class="menu-btn-corner menu-btn-corner-br"></div>
+                <span class="menu-btn-text">Options</span>
+            </button>
+        </div>
+        
+        <div id="menu-version">BUILD 0.1.0</div>
+        <div id="menu-copyright">© 2026 DreamLands Studio</div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         PAUSE MENU
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="pause-menu-overlay">
+        <div id="pause-blur-bg"></div>
+        <div id="pause-panel">
+            <div class="pause-corner pause-corner-tl"><svg viewBox="0 0 50 50"><path d="M5 45 L5 15 Q5 5 15 5 L45 5" fill="none"/></svg></div>
+            <div class="pause-corner pause-corner-tr"><svg viewBox="0 0 50 50"><path d="M5 45 L5 15 Q5 5 15 5 L45 5" fill="none"/></svg></div>
+            <div class="pause-corner pause-corner-bl"><svg viewBox="0 0 50 50"><path d="M5 45 L5 15 Q5 5 15 5 L45 5" fill="none"/></svg></div>
+            <div class="pause-corner pause-corner-br"><svg viewBox="0 0 50 50"><path d="M5 45 L5 15 Q5 5 15 5 L45 5" fill="none"/></svg></div>
+            <h2 id="pause-title">Paused</h2>
+            <div class="pause-title-line"></div>
+            <div id="pause-buttons">
+                <button class="pause-btn" id="pause-resume-btn"><div class="pause-btn-bg"></div><span class="pause-btn-text">Resume</span></button>
+                <button class="pause-btn" id="pause-options-btn"><div class="pause-btn-bg"></div><span class="pause-btn-text">Options</span></button>
+            </div>
+            <button class="pause-btn pause-btn-quit" id="pause-quit-btn"><div class="pause-btn-bg"></div><span class="pause-btn-text">Quit to Menu</span></button>
+            <div class="pause-esc-hint">Press <span>ESC</span> to resume</div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         GAME CONTAINER
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div id="game-container">
+        <!-- Biome Discovery -->
+        <div id="biome-notification">
+            <div class="biome-banner">
+                <div class="biome-discovered-label">Discovered</div>
+                <div class="biome-name" id="biome-name-text">Rolling Meadows</div>
+                <div class="biome-divider"></div>
+                <div class="biome-subtitle" id="biome-subtitle-text">Land of Gentle Hills</div>
+            </div>
+        </div>
+
+        <!-- Compass -->
+        <div id="compass-container">
+            <div id="compass-bar"><div id="compass-strip"></div></div>
+            <div id="compass-notch"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div id="instructions">
+            <div class="key-hint"><span class="key">W A S D</span> Move</div>
+            <div class="key-hint"><span class="key">SHIFT</span> Sprint/Dash</div>
+            <div class="key-hint"><span class="key">CTRL</span> Slide</div>
+            <div class="key-hint"><span class="key">SPACE</span> Jump</div>
+            <div class="key-hint"><span class="key">TAB</span> Inventory</div>
+            <div class="key-hint"><span class="key">J</span> Lore Book</div>
+        </div>
+
+        <!-- Crosshair -->
+        <div id="crosshair"></div>
+
+        <!-- Harvest UI -->
+        <div id="harvest-ui" class="hidden">
+            <div id="harvest-target-name">Tree</div>
+            <div id="harvest-target-icon"></div>
+            <div id="harvest-progress-container">
+                <div id="harvest-progress-bar"></div>
+            </div>
+            <div id="harvest-prompt">Hold <span class="key">LMB</span> to harvest</div>
+        </div>
+
+        <!-- Notifications -->
+        <div id="pickup-notifications"></div>
+        <div id="new-entry-notification"><div class="entry-icon">📖</div><div class="entry-text">New Entry Discovered!</div></div>
+
+        <!-- POI Prompt -->
+        <div id="poi-prompt"><span class="poi-icon"></span><span class="poi-text">Press E to enter</span></div>
+
+        <!-- Location Transition -->
+        <div id="location-transition"><div class="location-transition-text">Entering...</div></div>
+
+        <!-- Interior Indicator -->
+        <div id="interior-indicator">
+            <div class="interior-icon">🏠</div>
+            <div class="interior-info">
+                <div class="interior-name">Building</div>
+                <div class="interior-hint">Press <span class="key">E</span> to exit</div>
+            </div>
+        </div>
+
+        <!-- NPC Prompt -->
+        <div id="npc-prompt">
+            <div class="npc-prompt-text">Press <span class="key">E</span> to talk</div>
+            <div class="npc-name-preview">NPC Name</div>
+        </div>
+
+        <!-- Dialogue Overlay -->
+        <div id="dialogue-overlay">
+            <div id="dialogue-box">
+                <div id="dialogue-header">
+                    <div id="npc-portrait"><canvas id="npc-portrait-canvas" width="80" height="80"></canvas></div>
+                    <div id="npc-info">
+                        <div id="npc-name">NPC Name</div>
+                        <div id="npc-title">Title</div>
+                    </div>
+                </div>
+                <div id="dialogue-content"><div id="dialogue-text"></div></div>
+                <div id="dialogue-options"></div>
+            </div>
+        </div>
+
+        <!-- Shop Overlay -->
+        <div id="shop-overlay">
+            <div id="shop-container">
+                <div id="shop-player-side">
+                    <div id="shop-player-header">
+                        <span>Your Items</span>
+                        <div id="shop-player-gold"><span class="gold-icon">💰</span><span id="shop-gold-amount">0</span></div>
+                    </div>
+                    <div id="shop-player-inventory"></div>
+                </div>
+                <div id="shop-trader-side">
+                    <div id="shop-trader-header">
+                        <span id="shop-trader-name">Merchant</span>
+                        <button id="shop-close-btn">✕</button>
+                    </div>
+                    <div id="shop-sort-bar">
+                        <button class="sort-btn active" data-filter="all">All</button>
+                        <button class="sort-btn" data-filter="weapon">Weapons</button>
+                        <button class="sort-btn" data-filter="armor">Armor</button>
+                        <button class="sort-btn" data-filter="consumable">Items</button>
+                    </div>
+                    <div id="shop-trader-inventory"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HUD Elements -->
+        <div id="time-widget" class="hud-element">
+            <div class="time-display">12:00</div>
+            <div class="time-period">Midday</div>
+        </div>
+        <div id="weather-widget" class="hud-element">
+            <div class="weather-icon">☀️</div>
+            <div class="weather-name">Clear</div>
+        </div>
+        
+        <!-- HP/MP Flasks -->
+        <div id="flask-container">
+            <div class="flask hp-flask">
+                <div class="flask-liquid" id="hp-liquid"></div>
+                <div class="flask-label">HP</div>
+                <div class="flask-value"><span id="hp-value">100</span>/<span id="hp-max">100</span></div>
+            </div>
+            <div class="flask mp-flask">
+                <div class="flask-liquid" id="mp-liquid"></div>
+                <div class="flask-label">MP</div>
+                <div class="flask-value"><span id="mp-value">50</span>/<span id="mp-max">50</span></div>
+            </div>
+        </div>
+
+        <!-- XP Bar -->
+        <div id="xp-bar-container">
+            <div id="xp-bar-bg">
+                <div id="xp-bar-fill"></div>
+            </div>
+            <div id="xp-level">LV <span id="xp-level-num">1</span></div>
+            <div id="xp-values"><span id="xp-current">0</span>/<span id="xp-needed">100</span></div>
+        </div>
+
+        <!-- Debug Display -->
+        <div id="debug"></div>
+
+        <!-- Material Popup -->
+        <div id="material-popup"></div>
+
+        <!-- Hotbar -->
+        <div id="hotbar">
+            <div class="hotbar-slot" data-slot="0"><span class="slot-key">1</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="1"><span class="slot-key">2</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="2"><span class="slot-key">3</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="3"><span class="slot-key">4</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="4"><span class="slot-key">5</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="5"><span class="slot-key">6</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="6"><span class="slot-key">7</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="7"><span class="slot-key">8</span><span class="slot-icon"></span></div>
+            <div class="hotbar-slot" data-slot="8"><span class="slot-key">9</span><span class="slot-icon"></span></div>
+        </div>
+
+        <!-- Inventory Overlay -->
+        <div id="inventory-overlay">
+            <div id="inventory-panel">
+                <div id="inventory-tabs">
+                    <button class="inv-tab active" data-tab="bag">Bag</button>
+                    <button class="inv-tab" data-tab="character">Character</button>
+                    <button class="inv-tab" data-tab="crafting">Crafting</button>
+                    <button class="inv-tab" data-tab="skills">Skills</button>
+                    <button class="inv-tab" data-tab="quests">Quests</button>
+                </div>
+                
+                <div id="tab-content">
+                    <!-- Bag Tab -->
+                    <div id="tab-bag" class="tab-panel active">
+                        <div id="inv-sort-bar">
+                            <button class="sort-btn active" data-filter="all">All</button>
+                            <button class="sort-btn" data-filter="weapon">Weapons</button>
+                            <button class="sort-btn" data-filter="armor">Armor</button>
+                            <button class="sort-btn" data-filter="consumable">Consumables</button>
+                            <button class="sort-btn" data-filter="tool">Tools</button>
+                            <button class="sort-btn" data-filter="resource">Resources</button>
+                        </div>
+                        <div id="unified-bag-grid"></div>
+                        <div id="inv-gold-display">Gold: <span id="inv-gold-amount">0</span></div>
+                    </div>
+                    
+                    <!-- Character Tab -->
+                    <div id="tab-character" class="tab-panel">
+                        <div id="character-stats">
+                            <h3>Stats</h3>
+                            <div class="stat-row"><span>Level:</span><span id="char-level">1</span></div>
+                            <div class="stat-row"><span>STR:</span><span id="stat-str">10</span></div>
+                            <div class="stat-row"><span>DEX:</span><span id="stat-dex">10</span></div>
+                            <div class="stat-row"><span>CON:</span><span id="stat-con">10</span></div>
+                            <div class="stat-row"><span>INT:</span><span id="stat-int">10</span></div>
+                            <div class="stat-row"><span>WIS:</span><span id="stat-wis">10</span></div>
+                            <div class="stat-row"><span>CHA:</span><span id="stat-cha">10</span></div>
+                        </div>
+                        <div id="combat-stats">
+                            <div class="stat-row"><span>HP:</span><span id="stat-hp">100/100</span></div>
+                            <div class="stat-row"><span>MP:</span><span id="stat-mp">50/50</span></div>
+                            <div class="stat-row"><span>Stamina:</span><span id="stat-stam">100/100</span></div>
+                            <div class="stat-row"><span>Attack:</span><span id="stat-atk">10</span></div>
+                            <div class="stat-row"><span>Defense:</span><span id="stat-def">5</span></div>
+                            <div class="stat-row"><span>Crit:</span><span id="stat-crit">5%</span></div>
+                        </div>
+                        <div id="resistances">
+                            <h4>Resistances</h4>
+                            <div class="stat-row"><span>Physical:</span><span id="res-phys">0%</span></div>
+                            <div class="stat-row"><span>Fire:</span><span id="res-fire">0%</span></div>
+                            <div class="stat-row"><span>Ice:</span><span id="res-ice">0%</span></div>
+                            <div class="stat-row"><span>Lightning:</span><span id="res-light">0%</span></div>
+                        </div>
+                        <div id="equipment-panel">
+                            <h3>Equipment</h3>
+                            <div class="equip-slots">
+                                <div class="equip-slot" data-slot="helmet">Helmet</div>
+                                <div class="equip-slot" data-slot="necklace">Necklace</div>
+                                <div class="equip-slot" data-slot="chestpiece">Chest</div>
+                                <div class="equip-slot" data-slot="belt">Belt</div>
+                                <div class="equip-slot" data-slot="greaves">Greaves</div>
+                                <div class="equip-slot" data-slot="boots">Boots</div>
+                                <div class="equip-slot" data-slot="ring1">Ring</div>
+                                <div class="equip-slot" data-slot="ring2">Ring</div>
+                                <div class="equip-slot" data-slot="trinket">Trinket</div>
+                            </div>
+                        </div>
+                        <div id="xp-panel">
+                            <div id="xp-fill"></div>
+                            <span id="xp-text">0 / 100 XP</span>
+                        </div>
+                        <div id="gold-display">Gold: <span id="gold-amount">0</span></div>
+                    </div>
+                    
+                    <!-- Crafting Tab -->
+                    <div id="tab-crafting" class="tab-panel">
+                        <div id="crafting-sort-bar">
+                            <button class="sort-btn active" data-filter="all">All</button>
+                            <button class="sort-btn" data-filter="tool">Tools</button>
+                            <button class="sort-btn" data-filter="material">Materials</button>
+                            <button class="sort-btn" data-filter="consumable">Consumables</button>
+                        </div>
+                        <div id="crafting-list"></div>
+                    </div>
+                    
+                    <!-- Skills Tab -->
+                    <div id="tab-skills" class="tab-panel">
+                        <canvas id="sphere-grid-canvas"></canvas>
+                        <div id="skill-points">SP: <span id="sp-amount">0</span></div>
+                    </div>
+                    
+                    <!-- Quests Tab -->
+                    <div id="tab-quests" class="tab-panel">
+                        <div id="quest-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lore Book Overlay -->
+        <div id="lorebook-overlay">
+            <div id="lorebook-panel">
+                <div id="lorebook-header">
+                    <h2>Lore Book</h2>
+                    <button id="lorebook-close">✕</button>
+                </div>
+                <div id="lorebook-tabs">
+                    <button class="lore-tab active" data-category="biomes">Biomes</button>
+                    <button class="lore-tab" data-category="flora">Flora</button>
+                    <button class="lore-tab" data-category="fauna">Fauna</button>
+                    <button class="lore-tab" data-category="locations">Locations</button>
+                </div>
+                <div id="lorebook-content"></div>
+                <div id="lorebook-progress">
+                    <span id="lore-discovered">0</span>/<span id="lore-total">0</span> Discovered
+                </div>
+            </div>
+        </div>
+
+    </div><!-- End game-container -->
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Game Scripts (ES Modules) -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
