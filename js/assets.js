@@ -4,7 +4,7 @@
 // Consumers: UI, Inventory, Shop, Resources, NPCs
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import * as THREE from "three";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ITEM ICONS - SVG icons for inventory items
