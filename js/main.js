@@ -35,7 +35,7 @@ import { POISystem } from './poi.js';
 // Player Systems
 import { PlayerSystem } from './player.js';
 import { CombatSystem } from './systems/CombatSystem.js';
-import { InventorySystem } from './systems/InventorySystem.js';
+import { InventorySystem, craftingRecipes } from './systems/InventorySystem.js';
 
 // UI Systems
 import { UISystem } from './ui.js';
@@ -239,7 +239,7 @@ function initSky() {
     
     // Sky system creates sky sphere with shader
     SkySystem.init({ scene });
-    skyMat = SkySystem.getSkyMaterial();
+    skyMat = SkySystem.getMaterial();  // Fixed: was getSkyMaterial
     
     // Initialize scene fog with default values (will be updated by BiomeSystem)
     scene.fog = new THREE.FogExp2(0x9ecfb7, 0.0045);
@@ -294,7 +294,7 @@ function initSystems() {
         inventory: InventorySystem,
         spawnParticles,
         showPickupNotification: UISystem.showPickupNotification,
-        discoverMaterial: LoreBookSystem.discoverMaterial,
+        discoverMaterial: LoreBookSystem.discoverLore,  // Fixed: was discoverMaterial
         treeGrid,
         rockGrid
     });
@@ -399,9 +399,9 @@ function initInput() {
         if (inventoryOpen) return;
         const s = InventorySystem.selectedSlot;
         if (e.deltaY > 0) {
-            InventorySystem.selectSlot((s + 1) % 9);
+            InventorySystem.selectedSlot = (s + 1) % 9;  // Fixed: use setter
         } else {
-            InventorySystem.selectSlot((s + 8) % 9);
+            InventorySystem.selectedSlot = (s + 8) % 9;  // Fixed: use setter
         }
     });
     
@@ -425,7 +425,7 @@ function initInput() {
                 return;
             }
             if (shopOpen) { ShopSystem.close(); shopOpen = false; return; }
-            if (currentDialogue) { DialogueSystem.close(); currentDialogue = null; return; }
+            if (currentDialogue) { DialogueSystem.closeDialogue(); currentDialogue = null; return; }  // Fixed
             if (inventoryOpen) { UISystem.toggleInventory(); inventoryOpen = false; return; }
             if (loreBookOpen) { LoreBookSystem.toggle(); loreBookOpen = false; return; }
             if (typeof window.openPauseMenu === 'function') {
@@ -445,11 +445,11 @@ function initInput() {
         if (k === 'shift') { if (!keys.shift) pMove.shiftJustPressed = true; keys.shift = true; }
         if (k === 'control' || k === 'c') { if (!keys.ctrl) pMove.ctrlJustPressed = true; keys.ctrl = true; }
         if (k === 'l') locked ? document.exitPointerLock() : renderer.domElement.requestPointerLock();
-        if (k === 't') DayNightSystem.advanceHour();
+        if (k === 't') DayNightSystem.advanceTime(1);  // Fixed: was advanceHour
         if (k === 'y') WeatherSystem.cycle();
         if (k === 'e') handleInteraction();
         if (k === 'j') { LoreBookSystem.toggle(); loreBookOpen = LoreBookSystem.isOpen(); }
-        if (k >= '1' && k <= '9') InventorySystem.selectSlot(parseInt(k) - 1);
+        if (k >= '1' && k <= '9') InventorySystem.selectedSlot = parseInt(k) - 1;  // Fixed: use setter
     });
     
     // Keyup
@@ -510,7 +510,7 @@ function spawnWorld() {
     }
     
     // Spawn creatures
-    CreatureSystem.spawnInitialCreatures();
+    CreatureSystem.spawnInArea(getHeight);  // Fixed: was spawnInitialCreatures
     
     // Create POIs
     POISystem.init({ scene, getHeight, CONFIG });
@@ -522,11 +522,11 @@ function spawnWorld() {
 function initUI() {
     UISystem.init({
         inventory: InventorySystem,
-        equipment: InventorySystem.equipment,
-        hotbarItems: InventorySystem.hotbarItems,
-        characterStats: InventorySystem.characterStats,
-        knownSpells: InventorySystem.knownSpells,
-        craftingRecipes: InventorySystem.craftingRecipes,
+        equipment: InventorySystem.getEquipment(),  // Fixed: use getter
+        hotbarItems: InventorySystem.getHotbarItems(),  // Fixed: use getter
+        characterStats: InventorySystem.getStats(),  // Fixed: use getter
+        knownSpells: InventorySystem.getKnownSpells(),  // Fixed: use getter
+        craftingRecipes,  // This is imported from InventorySystem
         itemIcons,
         SHOP_ICONS,
         spellIcons: {},
@@ -538,9 +538,6 @@ function initUI() {
     
     // Initialize HUD
     UISystem.updatePlayerHUD();
-    
-    // Initialize lore book
-    LoreBookSystem.initUI();
     
     // Update weather widget
     const wCfg = WeatherSystem.getConfig();
@@ -555,11 +552,19 @@ function initUI() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function handleInteraction() {
-    // Check POI interaction
-    POISystem.checkInteraction(player.position);
+    // Find nearest interactable POI
+    const nearestPOI = POISystem.findNearest(player.position.x, player.position.z, 10);
+    if (nearestPOI) {
+        console.log('Interacting with POI:', nearestPOI);
+        // Handle POI interaction
+    }
     
-    // Check NPC interaction
-    NPCSystem.checkInteraction(player.position);
+    // Find nearest interactable NPC
+    const nearestNPC = NPCSystem.findNearest(player.position.x, player.position.z, 5);
+    if (nearestNPC) {
+        console.log('Interacting with NPC:', nearestNPC);
+        DialogueSystem.openDialogue(nearestNPC);
+    }
 }
 
 function spawnParticles(pos, color, count = 8) {
@@ -657,7 +662,7 @@ function animate() {
         updateVisibility();
         
         // Update combat
-        CombatSystem.update(delta, time);
+        CombatSystem.updateProjectiles(delta);  // Fixed: was update(delta, time)
         
         // Update quests
         QuestSystem.animateMarkers(time);
@@ -844,13 +849,13 @@ function updatePlayerMovement(delta) {
 
 function updateEntities(delta) {
     // Update POIs
-    POISystem.update(time, player.position);
+    POISystem.updateAll(time);  // Fixed: was update(time, player.position)
     
     // Update NPCs
-    NPCSystem.update(time, player.position);
+    NPCSystem.updateAll(time, player.position);  // Fixed: was update
     
     // Update creatures
-    CreatureSystem.update(delta, player.position);
+    CreatureSystem.updateAll(delta, time, player.position);  // Fixed: was update
     
     // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
@@ -863,9 +868,8 @@ function updateEntities(delta) {
     // Update wind particles
     windParticles.forEach(p => p.update(delta, time, wind.strength, wind.dir));
     
-    // Update clouds
-    const wCfg = WeatherSystem.getConfig();
-    clouds.forEach(cloud => cloud.update(delta, wind.dir, wind.strength, player.position));
+    // Update clouds via SkySystem
+    SkySystem.updateClouds(delta, wind.dir, wind.strength, player.position);
 }
 
 function updateVisibility() {
