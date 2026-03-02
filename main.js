@@ -120,6 +120,8 @@ const dir = new THREE.Vector3();
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function init() {
+    console.log('Game init starting...');
+    
     // Create scene
     scene = new THREE.Scene();
     clock = new THREE.Clock();
@@ -149,6 +151,11 @@ function init() {
     renderer.info.autoReset = false;
     document.body.appendChild(renderer.domElement);
     
+    // Expose renderer globally for pointer lock from menu
+    window.renderer = renderer;
+    
+    console.log('Renderer created');
+    
     // Initialize spatial grids
     treeGrid = new SpatialGrid(CONFIG.gridCellSize);
     rockGrid = new SpatialGrid(CONFIG.gridCellSize);
@@ -160,24 +167,29 @@ function init() {
     
     // Initialize lighting
     initLighting();
+    console.log('Lighting initialized');
     
     // Initialize sky
     initSky();
     
     // Initialize terrain
     initTerrain();
+    console.log('Terrain initialized');
     
     // Initialize systems
     initSystems();
+    console.log('Systems initialized');
     
     // Initialize player
     initPlayer();
+    console.log('Player at:', player.position.x, player.position.y, player.position.z);
     
     // Initialize input
     initInput();
     
     // Spawn world
     spawnWorld();
+    console.log('World spawned');
     
     // Initialize UI
     initUI();
@@ -185,6 +197,7 @@ function init() {
     // Window resize handler
     window.addEventListener('resize', onWindowResize);
     
+    console.log("Game init complete!");
     console.log("Press TAB to open inventory!");
     console.log("Press J to open Lore Book!");
 }
@@ -221,9 +234,17 @@ function initLighting() {
 }
 
 function initSky() {
+    // Set scene background color (fallback if sky fails)
+    scene.background = new THREE.Color(0x87CEEB);
+    
     // Sky system creates sky sphere with shader
     SkySystem.init({ scene });
     skyMat = SkySystem.getSkyMaterial();
+    
+    // Initialize scene fog with default values (will be updated by BiomeSystem)
+    scene.fog = new THREE.FogExp2(0x9ecfb7, 0.0045);
+    
+    console.log('Sky and fog initialized');
 }
 
 function initTerrain() {
@@ -911,6 +932,9 @@ function startGame() {
 // Export for menu to call
 window.initializeGame = startGame;
 window.startGame = startGame;
+
+// Expose renderer globally for pointer lock
+window.renderer = null;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // EXPORTS
