@@ -395,8 +395,14 @@
 
     </div><!-- End game-container -->
 
-    <!-- Three.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+    <!-- Import Map for ES Modules -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+        }
+    }
+    </script>
     
     <!-- Game Scripts (ES Modules) -->
     <script type="module" src="js/main.js"></script>
