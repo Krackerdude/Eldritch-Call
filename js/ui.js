@@ -382,14 +382,30 @@ function initMainTabs() {
             // Refresh content based on tab
             if (tab.dataset.tab === 'items') {
                 updateInventoryUI();
+                initSortingTabs();
+                initBagEquipmentSlots();
             } else if (tab.dataset.tab === 'crafting') {
                 updateCraftingUI();
             } else if (tab.dataset.tab === 'skills') {
                 drawSphereGrid();
             } else if (tab.dataset.tab === 'character') {
                 updateCharacterStats();
+                initCharacterEquipmentSlots();
             }
         };
+    });
+}
+
+function initCharacterEquipmentSlots() {
+    const slots = document.querySelectorAll('#equipment-slots .equip-slot');
+    slots.forEach(slot => {
+        const slotType = slot.dataset.slot;
+        const equipped = _deps.inventory.getEquipmentSlot ? _deps.inventory.getEquipmentSlot(slotType) : null;
+        
+        if (equipped) {
+            slot.classList.add('equipped');
+            slot.innerHTML = `<img src="${_deps.itemIcons[equipped.icon] || ''}" alt="${equipped.name}">`;
+        }
     });
 }
 
@@ -882,7 +898,7 @@ function updateCraftingUI() {
 }
 
 function initCraftingSortTabs() {
-    const sortBtns = document.querySelectorAll('#crafting-sort-bar .sort-btn');
+    const sortBtns = document.querySelectorAll('#craft-sort-bar .sort-btn');
     sortBtns.forEach(btn => {
         btn.onclick = () => {
             sortBtns.forEach(b => b.classList.remove('active'));

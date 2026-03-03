@@ -347,13 +347,108 @@
                 <div class="tab-content" id="tab-skills">
                     <div id="skills-container">
                         <canvas id="sphere-canvas"></canvas>
+                        <div id="skill-legend">
+                            <div class="legend-item"><div class="legend-dot combat"></div> Combat</div>
+                            <div class="legend-item"><div class="legend-dot survival"></div> Survival</div>
+                            <div class="legend-item"><div class="legend-dot utility"></div> Utility</div>
+                            <div class="legend-item"><div class="legend-dot special"></div> Special</div>
+                            <div class="legend-item"><div class="legend-dot locked"></div> Locked</div>
+                        </div>
                         <div id="skill-points"><div class="sp-label">Skill Points</div><div class="sp-value">5</div></div>
+                        <div id="grid-instructions">Drag to pan - Scroll to zoom</div>
+                        <div id="grid-controls">
+                            <button id="zoom-in">+</button>
+                            <button id="zoom-out">−</button>
+                            <button id="zoom-reset">⌂</button>
+                        </div>
+                        <div id="skill-info">
+                            <div class="skill-name">Skill Name</div>
+                            <div class="skill-desc">Description here</div>
+                            <div class="skill-cost">Cost: 1 SP</div>
+                            <div class="skill-status">Status</div>
+                        </div>
                     </div>
                 </div>
                 
                 <!-- CHARACTER TAB -->
                 <div class="tab-content" id="tab-character">
                     <div id="character-sheet">
+                        <!-- Left Panel - Equipment Slots -->
+                        <div id="equipment-panel">
+                            <div class="panel-title">EQUIPMENT</div>
+                            <div id="equipment-slots">
+                                <div class="equip-row top-row">
+                                    <div class="equip-slot" data-slot="helmet" title="Helmet">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><path d="M16 4C10 4 6 8 6 14v6h4v-4h12v4h4v-6c0-6-4-10-10-10z" fill="currentColor"/><rect x="8" y="20" width="16" height="4" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row shoulder-row">
+                                    <div class="equip-slot" data-slot="pauldrons" title="Pauldrons">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><path d="M4 10c0 0 4-2 12-2s12 2 12 2v10c0 0-4 2-12 2s-12-2-12-2V10z" fill="currentColor"/></svg>
+                                    </div>
+                                    <div class="equip-slot" data-slot="necklace" title="Necklace">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><circle cx="16" cy="22" r="4" fill="currentColor"/><path d="M8 8c0 0 2 6 8 6s8-6 8-6" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row chest-row">
+                                    <div class="equip-slot" data-slot="chestpiece" title="Chest">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><path d="M8 6L4 10v14l4 2h16l4-2V10l-4-4H8z" fill="currentColor"/></svg>
+                                    </div>
+                                    <div class="equip-slot ring-slot" data-slot="ring1" title="Ring">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="16" cy="10" r="3" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row belt-row">
+                                    <div class="equip-slot" data-slot="belt" title="Belt">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><rect x="4" y="12" width="24" height="8" rx="2" fill="currentColor"/><rect x="13" y="10" width="6" height="12" fill="currentColor"/></svg>
+                                    </div>
+                                    <div class="equip-slot ring-slot" data-slot="ring2" title="Ring">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8" stroke="currentColor" stroke-width="3" fill="none"/><circle cx="16" cy="10" r="3" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row trinket-row">
+                                    <div class="equip-slot" data-slot="trinket" title="Trinket">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><polygon points="16,4 20,12 28,14 22,20 24,28 16,24 8,28 10,20 4,14 12,12" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row legs-row">
+                                    <div class="equip-slot" data-slot="greaves" title="Greaves">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><path d="M8 4h6v20H8z" fill="currentColor"/><path d="M18 4h6v20h-6z" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                                <div class="equip-row feet-row">
+                                    <div class="equip-slot" data-slot="boots" title="Boots">
+                                        <svg class="slot-icon" viewBox="0 0 32 32"><path d="M6 8h8v12H6z" fill="currentColor"/><path d="M18 8h8v12h-8z" fill="currentColor"/><path d="M4 20h12v6H4z" fill="currentColor"/><path d="M16 20h12v6H16z" fill="currentColor"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Middle Panel - Spells/Skills -->
+                        <div id="spells-panel">
+                            <div class="panel-title">KNOWN SPELLS & ABILITIES</div>
+                            <div id="spell-categories">
+                                <div class="spell-category">
+                                    <div class="category-header">COMBAT SKILLS</div>
+                                    <div class="spell-grid" id="combat-spells"><div class="spell-placeholder">Unlock combat skills in the Sphere Grid</div></div>
+                                </div>
+                                <div class="spell-category">
+                                    <div class="category-header">MAGIC SPELLS</div>
+                                    <div class="spell-grid" id="magic-spells"><div class="spell-placeholder">Unlock magic skills in the Sphere Grid</div></div>
+                                </div>
+                                <div class="spell-category">
+                                    <div class="category-header">SURVIVAL ABILITIES</div>
+                                    <div class="spell-grid" id="survival-spells"><div class="spell-placeholder">Unlock survival skills in the Sphere Grid</div></div>
+                                </div>
+                                <div class="spell-category">
+                                    <div class="category-header">UTILITY ABILITIES</div>
+                                    <div class="spell-grid" id="utility-spells"><div class="spell-placeholder">Unlock utility skills in the Sphere Grid</div></div>
+                                </div>
+                            </div>
+                            <div class="spell-hint">Drag spells to hotbar to equip</div>
+                        </div>
+                        
+                        <!-- Right Panel - Stats -->
                         <div id="stats-panel">
                             <div class="panel-title">CHARACTER STATS</div>
                             <div id="char-header">
@@ -370,19 +465,40 @@
                                     <span class="xp-text" id="xp-text">0 / 100 XP</span>
                                 </div>
                             </div>
-                            <div id="stats-grid">
-                                <div class="stat-row"><span>STR</span><span id="stat-str">10</span></div>
-                                <div class="stat-row"><span>DEX</span><span id="stat-dex">10</span></div>
-                                <div class="stat-row"><span>CON</span><span id="stat-con">10</span></div>
-                                <div class="stat-row"><span>INT</span><span id="stat-int">10</span></div>
-                                <div class="stat-row"><span>WIS</span><span id="stat-wis">10</span></div>
-                                <div class="stat-row"><span>CHA</span><span id="stat-cha">10</span></div>
+                            <div id="currency-section">
+                                <div class="currency-row">
+                                    <svg class="currency-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#ffd700"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="#8b6914">G</text></svg>
+                                    <span class="currency-value" id="gold-amount">500</span>
+                                </div>
                             </div>
+                            <div class="stats-divider"></div>
+                            <div id="primary-stats">
+                                <div class="stats-header">PRIMARY ATTRIBUTES</div>
+                                <div class="stat-row"><span class="stat-label">Strength</span><span class="stat-value" id="stat-str">10</span></div>
+                                <div class="stat-row"><span class="stat-label">Dexterity</span><span class="stat-value" id="stat-dex">10</span></div>
+                                <div class="stat-row"><span class="stat-label">Constitution</span><span class="stat-value" id="stat-con">10</span></div>
+                                <div class="stat-row"><span class="stat-label">Intelligence</span><span class="stat-value" id="stat-int">10</span></div>
+                                <div class="stat-row"><span class="stat-label">Wisdom</span><span class="stat-value" id="stat-wis">10</span></div>
+                                <div class="stat-row"><span class="stat-label">Charisma</span><span class="stat-value" id="stat-cha">10</span></div>
+                            </div>
+                            <div class="stats-divider"></div>
                             <div id="combat-stats">
-                                <div class="stat-row"><span>HP</span><span id="stat-hp">100/100</span></div>
-                                <div class="stat-row"><span>MP</span><span id="stat-mp">50/50</span></div>
-                                <div class="stat-row"><span>ATK</span><span id="stat-atk">5</span></div>
-                                <div class="stat-row"><span>DEF</span><span id="stat-def">2</span></div>
+                                <div class="stats-header">COMBAT STATS</div>
+                                <div class="stat-row"><span class="stat-label">Health</span><span class="stat-value" id="stat-hp">100/100</span></div>
+                                <div class="stat-row"><span class="stat-label">Mana</span><span class="stat-value" id="stat-mp">50/50</span></div>
+                                <div class="stat-row"><span class="stat-label">Stamina</span><span class="stat-value" id="stat-stam">100/100</span></div>
+                                <div class="stat-row"><span class="stat-label">Attack</span><span class="stat-value" id="stat-atk">5</span></div>
+                                <div class="stat-row"><span class="stat-label">Defense</span><span class="stat-value" id="stat-def">2</span></div>
+                                <div class="stat-row"><span class="stat-label">Crit Chance</span><span class="stat-value" id="stat-crit">5%</span></div>
+                            </div>
+                            <div class="stats-divider"></div>
+                            <div id="resistances">
+                                <div class="stats-header">RESISTANCES</div>
+                                <div class="stat-row"><span class="stat-label">Physical</span><span class="stat-value" id="res-phys">0%</span></div>
+                                <div class="stat-row"><span class="stat-label">Fire</span><span class="stat-value" id="res-fire">0%</span></div>
+                                <div class="stat-row"><span class="stat-label">Ice</span><span class="stat-value" id="res-ice">0%</span></div>
+                                <div class="stat-row"><span class="stat-label">Lightning</span><span class="stat-value" id="res-light">0%</span></div>
+                                <div class="stat-row"><span class="stat-label">Shadow</span><span class="stat-value" id="res-shadow">0%</span></div>
                             </div>
                         </div>
                     </div>
