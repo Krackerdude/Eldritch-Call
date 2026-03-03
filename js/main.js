@@ -337,12 +337,8 @@ function initSystems() {
     
     // LoreBookSystem is auto-initialized (IIFE) - no init needed
     
-    // Initialize compass
-    CompassSystem.init({
-        player,
-        poiList,
-        BiomeSystem
-    });
+    // Initialize compass (finds DOM element automatically)
+    CompassSystem.init();
     
     // Initialize interiors
     InteriorSystem.init({
@@ -660,7 +656,7 @@ function animate() {
         QuestSystem.animateMarkers(time);
         
         // Update compass
-        CompassSystem.update();
+        CompassSystem.updateFromPlayer(player, []);
     }
     
     // UI updates (time-based)
