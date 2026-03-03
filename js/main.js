@@ -16,7 +16,7 @@ import {
 import { sharedGeom, mats, itemIcons, weatherIcons, SHOP_ICONS } from './assets.js';
 
 // Terrain & Sky
-import { TerrainSystem, getHeight } from './terrain.js';
+import { TerrainSystem, getHeight, getSlope } from './terrain.js';
 import { SkySystem } from './sky.js';
 import { LightingSystem } from './lighting.js';
 
@@ -96,14 +96,10 @@ let currentDialogue = null;
 let loreBookOpen = false;
 let currentInterior = null;
 
-// Entity lists
+// Entity lists (particles and effects only - trees/rocks managed by ResourceSystem)
 const particles = [];
 const fallingLeaves = [];
 const windParticles = [];
-const clouds = [];
-const swayingTrees = [];
-const harvestableResources = [];
-const groundCover = [];
 const poiList = [];
 const npcList = [];
 const biomeNPCList = [];
@@ -498,13 +494,71 @@ function spawnWorld() {
     }
     
     // Spawn creatures
-    CreatureSystem.spawnInArea(getHeight);  // Fixed: was spawnInitialCreatures
+    CreatureSystem.spawnInArea(getHeight);
     
-    // Create POIs
+    // Initialize POI system and spawn POIs
     POISystem.init({ scene, getHeight, CONFIG });
+    spawnPOIs();
     
-    // Create NPCs
+    // Initialize NPC system and spawn NPCs
     NPCSystem.init({ scene, getHeight, CONFIG, DialogueSystem, ShopSystem });
+    spawnNPCs();
+    
+    console.log('World spawned');
+}
+
+function spawnPOIs() {
+    const area = CONFIG.terrainSize * 0.7;
+    const configs = [
+        { type: 'mineshaft', count: 2 }, { type: 'cabin', count: 3 },
+        { type: 'shrine', count: 4 }, { type: 'cave', count: 2 },
+        { type: 'ruins', count: 2 }, { type: 'watchtower', count: 2 }, { type: 'well', count: 3 }
+    ];
+    const placed = [];
+    
+    for (const cfg of configs) {
+        for (let i = 0; i < cfg.count; i++) {
+            for (let attempt = 0; attempt < 50; attempt++) {
+                const x = (Math.random() - 0.5) * area;
+                const z = (Math.random() - 0.5) * area;
+                
+                // Skip if slope too steep or too close to center
+                if (getSlope(x, z) > 0.4 || Math.sqrt(x*x + z*z) < 50) continue;
+                
+                // Check distance from other POIs
+                let valid = true;
+                for (const p of placed) {
+                    if (Math.sqrt((x - p.x)**2 + (z - p.z)**2) < 80) {
+                        valid = false;
+                        break;
+                    }
+                }
+                
+                if (valid) {
+                    POISystem.createPOI(cfg.type, x, z);
+                    placed.push({ x, z });
+                    break;
+                }
+            }
+        }
+    }
+    
+    console.log('Spawned ' + POISystem.getList().length + ' Points of Interest');
+}
+
+function spawnNPCs() {
+    const npcKeys = ['wanderer', 'herbalist', 'weaponsmith', 'armorsmith', 'scholar'];
+    const spawnRadius = 25;
+    
+    npcKeys.forEach((key, i) => {
+        const angle = (i / npcKeys.length) * Math.PI * 2;
+        const dist = spawnRadius + Math.random() * 10;
+        const x = Math.cos(angle) * dist;
+        const z = Math.sin(angle) * dist;
+        NPCSystem.createNPC(x, z, key);
+    });
+    
+    console.log('Spawned ' + NPCSystem.getList().length + ' NPCs');
 }
 
 function initUI() {
@@ -871,28 +925,29 @@ function updateVisibility() {
         frustum.setFromProjectionMatrix(frustumMatrix);
     }
     
-    // Trees
+    // Trees - use ResourceSystem's arrays
     if (frame % 3 === 0) {
-        const nearbyTrees = treeGrid.getNearby(px, pz, CONFIG.treeCulling);
-        nearbyTrees.forEach(t => {
+        ResourceSystem.getSwayingTrees().forEach(t => {
             if (!t.isDestroyed) t.updateVis(px, pz);
         });
     }
     
     // Rocks
     if (frame % 4 === 2) {
-        const nearbyRocks = rockGrid.getNearby(px, pz, CONFIG.rockCulling);
-        nearbyRocks.forEach(r => r.updateVis(px, pz));
+        ResourceSystem.getHarvestableResources().forEach(r => {
+            if (r.updateVis) r.updateVis(px, pz);
+        });
     }
     
     // Ground cover
     if (frame % 4 === 0) {
-        const batchSize = Math.ceil(groundCover.length / 4);
+        const gc = ResourceSystem.getGroundCover();
+        const batchSize = Math.ceil(gc.length / 4);
         const batchIdx = Math.floor((frame / 4) % 4);
         const start = batchIdx * batchSize;
-        const end = Math.min(start + batchSize, groundCover.length);
+        const end = Math.min(start + batchSize, gc.length);
         for (let i = start; i < end; i++) {
-            groundCover[i].updateVis(px, pz);
+            if (gc[i] && gc[i].updateVis) gc[i].updateVis(px, pz);
         }
     }
 }
@@ -902,8 +957,8 @@ function updateDebugDisplay() {
     if (!debugEl) return;
     
     let visTrees = 0, lodTrees = 0;
-    swayingTrees.forEach(t => {
-        if (t.group.visible && !t.isDestroyed) {
+    ResourceSystem.getSwayingTrees().forEach(t => {
+        if (t.group && t.group.visible && !t.isDestroyed) {
             visTrees++;
             if (t.lodLevel > 0) lodTrees++;
         }

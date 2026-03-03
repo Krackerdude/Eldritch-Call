@@ -1271,6 +1271,10 @@ const ResourceSystem = {
     init(deps) {
         _deps = { ..._deps, ...deps };
         
+        // Set up grids if provided
+        if (deps.treeGrid) treeGrid = deps.treeGrid;
+        if (deps.rockGrid) rockGrid = deps.rockGrid;
+        
         // Initialize rock type materials from mats
         rockTypes[0].mat = _deps.mats.rockGranite;
         rockTypes[1].mat = _deps.mats.rockSlate;
@@ -1279,6 +1283,8 @@ const ResourceSystem = {
         rockTypes[4].mat = _deps.mats.rockCrystal;
         rockTypes[5].mat = _deps.mats.rockObsidian;
         rockTypes[6].mat = _deps.mats.rockGranite;
+        
+        console.log('ResourceSystem initialized');
     },
     
     setGrids(tGrid, rGrid) {
