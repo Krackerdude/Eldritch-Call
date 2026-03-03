@@ -265,12 +265,7 @@ function initSystems() {
         FogSystem
     });
     
-    // Initialize day/night
-    DayNightSystem.init({
-        sunLight,
-        ambientLight,
-        skyMat
-    });
+    // DayNightSystem is auto-initialized (IIFE) - no init needed
     
     // Initialize weather
     WeatherSystem.init({
@@ -294,7 +289,7 @@ function initSystems() {
         inventory: InventorySystem,
         spawnParticles,
         showPickupNotification: UISystem.showPickupNotification,
-        discoverMaterial: LoreBookSystem.discoverLore,  // Fixed: was discoverMaterial
+        discoverMaterial: LoreBookSystem.discoverLore,
         treeGrid,
         rockGrid
     });
@@ -340,10 +335,7 @@ function initSystems() {
         UISystem
     });
     
-    // Initialize lore book
-    LoreBookSystem.init({
-        UISystem
-    });
+    // LoreBookSystem is auto-initialized (IIFE) - no init needed
     
     // Initialize compass
     CompassSystem.init({
