@@ -133,6 +133,7 @@ function toggleInventory() {
         updateInventoryUI();
         updateCraftingUI();
         drawSphereGrid();
+        initMainTabs();
         initHotbarDragDrop();
         setupInventoryDropZone();
         initSortingTabs();
@@ -355,6 +356,42 @@ function getDefaultDescription(id, type) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // SORTING & FILTERING
 // ═══════════════════════════════════════════════════════════════════════════════
+
+function initMainTabs() {
+    const tabs = document.querySelectorAll('#inv-tabs .inv-tab');
+    const contents = document.querySelectorAll('#inventory-container .tab-content');
+    
+    // Close button
+    const closeBtn = document.getElementById('inv-close');
+    if (closeBtn) {
+        closeBtn.onclick = () => toggleInventory();
+    }
+    
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            // Remove active from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            // Add active to clicked tab
+            tab.classList.add('active');
+            const targetId = 'tab-' + tab.dataset.tab;
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.classList.add('active');
+            
+            // Refresh content based on tab
+            if (tab.dataset.tab === 'items') {
+                updateInventoryUI();
+            } else if (tab.dataset.tab === 'crafting') {
+                updateCraftingUI();
+            } else if (tab.dataset.tab === 'skills') {
+                drawSphereGrid();
+            } else if (tab.dataset.tab === 'character') {
+                updateCharacterStats();
+            }
+        };
+    });
+}
 
 function initSortingTabs() {
     const sortBtns = document.querySelectorAll('#inv-sort-bar .sort-btn');

@@ -276,98 +276,115 @@
 
         <!-- Inventory Overlay -->
         <div id="inventory-overlay">
-            <div id="inventory-panel">
-                <div id="inventory-tabs">
-                    <button class="inv-tab active" data-tab="bag">Bag</button>
-                    <button class="inv-tab" data-tab="character">Character</button>
-                    <button class="inv-tab" data-tab="crafting">Crafting</button>
-                    <button class="inv-tab" data-tab="skills">Skills</button>
-                    <button class="inv-tab" data-tab="quests">Quests</button>
+            <div id="inventory-container">
+                <button id="inv-close">✕</button>
+                <div class="inv-gold-display">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" fill="#000">G</text></svg>
+                    <span id="inv-gold-amount">0</span>
                 </div>
                 
-                <div id="tab-content">
-                    <!-- Bag Tab -->
-                    <div id="tab-bag" class="tab-panel active">
-                        <div id="inv-sort-bar">
-                            <button class="sort-btn active" data-filter="all">All</button>
-                            <button class="sort-btn" data-filter="weapon">Weapons</button>
-                            <button class="sort-btn" data-filter="armor">Armor</button>
-                            <button class="sort-btn" data-filter="consumable">Consumables</button>
-                            <button class="sort-btn" data-filter="tool">Tools</button>
-                            <button class="sort-btn" data-filter="resource">Resources</button>
-                        </div>
-                        <div id="unified-bag-grid"></div>
-                        <div id="inv-gold-display">Gold: <span id="inv-gold-amount">0</span></div>
+                <div id="inv-tabs">
+                    <button class="inv-tab active" data-tab="items">BAG</button>
+                    <button class="inv-tab" data-tab="crafting">CRAFTING</button>
+                    <button class="inv-tab" data-tab="skills">SKILLS</button>
+                    <button class="inv-tab" data-tab="character">CHARACTER</button>
+                </div>
+                
+                <!-- ITEMS/BAG TAB -->
+                <div class="tab-content active" id="tab-items">
+                    <div class="inv-sort-bar" id="inv-sort-bar">
+                        <button class="sort-btn active" data-filter="all">ALL</button>
+                        <button class="sort-btn" data-filter="resource">RESOURCES</button>
+                        <button class="sort-btn" data-filter="weapon">WEAPONS</button>
+                        <button class="sort-btn" data-filter="consumable">CONSUMABLES</button>
+                        <button class="sort-btn" data-filter="tool">TOOLS</button>
+                        <button class="sort-btn" data-filter="armor">ARMOR</button>
                     </div>
                     
-                    <!-- Character Tab -->
-                    <div id="tab-character" class="tab-panel">
-                        <div id="character-stats">
-                            <h3>Stats</h3>
-                            <div class="stat-row"><span>Level:</span><span id="char-level">1</span></div>
-                            <div class="stat-row"><span>STR:</span><span id="stat-str">10</span></div>
-                            <div class="stat-row"><span>DEX:</span><span id="stat-dex">10</span></div>
-                            <div class="stat-row"><span>CON:</span><span id="stat-con">10</span></div>
-                            <div class="stat-row"><span>INT:</span><span id="stat-int">10</span></div>
-                            <div class="stat-row"><span>WIS:</span><span id="stat-wis">10</span></div>
-                            <div class="stat-row"><span>CHA:</span><span id="stat-cha">10</span></div>
-                        </div>
-                        <div id="combat-stats">
-                            <div class="stat-row"><span>HP:</span><span id="stat-hp">100/100</span></div>
-                            <div class="stat-row"><span>MP:</span><span id="stat-mp">50/50</span></div>
-                            <div class="stat-row"><span>Stamina:</span><span id="stat-stam">100/100</span></div>
-                            <div class="stat-row"><span>Attack:</span><span id="stat-atk">10</span></div>
-                            <div class="stat-row"><span>Defense:</span><span id="stat-def">5</span></div>
-                            <div class="stat-row"><span>Crit:</span><span id="stat-crit">5%</span></div>
-                        </div>
-                        <div id="resistances">
-                            <h4>Resistances</h4>
-                            <div class="stat-row"><span>Physical:</span><span id="res-phys">0%</span></div>
-                            <div class="stat-row"><span>Fire:</span><span id="res-fire">0%</span></div>
-                            <div class="stat-row"><span>Ice:</span><span id="res-ice">0%</span></div>
-                            <div class="stat-row"><span>Lightning:</span><span id="res-light">0%</span></div>
-                        </div>
-                        <div id="equipment-panel">
-                            <h3>Equipment</h3>
-                            <div class="equip-slots">
-                                <div class="equip-slot" data-slot="helmet">Helmet</div>
-                                <div class="equip-slot" data-slot="necklace">Necklace</div>
-                                <div class="equip-slot" data-slot="chestpiece">Chest</div>
-                                <div class="equip-slot" data-slot="belt">Belt</div>
-                                <div class="equip-slot" data-slot="greaves">Greaves</div>
-                                <div class="equip-slot" data-slot="boots">Boots</div>
-                                <div class="equip-slot" data-slot="ring1">Ring</div>
-                                <div class="equip-slot" data-slot="ring2">Ring</div>
-                                <div class="equip-slot" data-slot="trinket">Trinket</div>
+                    <div class="bag-main-content">
+                        <div class="bag-equipment-panel" id="bag-equipment-panel">
+                            <div class="bag-equip-title">EQUIPMENT</div>
+                            <div class="bag-equip-slots">
+                                <div class="bag-equip-row"><div class="bag-equip-slot" data-slot="helmet" title="Helmet"></div></div>
+                                <div class="bag-equip-row dual">
+                                    <div class="bag-equip-slot" data-slot="pauldrons" title="Pauldrons"></div>
+                                    <div class="bag-equip-slot" data-slot="necklace" title="Necklace"></div>
+                                </div>
+                                <div class="bag-equip-row dual">
+                                    <div class="bag-equip-slot" data-slot="chestpiece" title="Chest"></div>
+                                    <div class="bag-equip-slot small" data-slot="ring1" title="Ring"></div>
+                                </div>
+                                <div class="bag-equip-row dual">
+                                    <div class="bag-equip-slot" data-slot="belt" title="Belt"></div>
+                                    <div class="bag-equip-slot small" data-slot="ring2" title="Ring"></div>
+                                </div>
+                                <div class="bag-equip-row"><div class="bag-equip-slot" data-slot="trinket" title="Trinket"></div></div>
+                                <div class="bag-equip-row"><div class="bag-equip-slot" data-slot="greaves" title="Greaves"></div></div>
+                                <div class="bag-equip-row"><div class="bag-equip-slot" data-slot="boots" title="Boots"></div></div>
                             </div>
                         </div>
-                        <div id="xp-panel">
-                            <div id="xp-fill"></div>
-                            <span id="xp-text">0 / 100 XP</span>
+                        
+                        <div class="bag-scroll-container" id="bag-scroll-container">
+                            <div class="unified-bag-grid" id="unified-bag-grid"></div>
                         </div>
-                        <div id="gold-display">Gold: <span id="gold-amount">0</span></div>
                     </div>
-                    
-                    <!-- Crafting Tab -->
-                    <div id="tab-crafting" class="tab-panel">
-                        <div id="crafting-sort-bar">
-                            <button class="sort-btn active" data-filter="all">All</button>
-                            <button class="sort-btn" data-filter="tool">Tools</button>
-                            <button class="sort-btn" data-filter="material">Materials</button>
-                            <button class="sort-btn" data-filter="consumable">Consumables</button>
-                        </div>
+                </div>
+                
+                <!-- CRAFTING TAB -->
+                <div class="tab-content" id="tab-crafting">
+                    <div class="inv-sort-bar" id="craft-sort-bar">
+                        <button class="sort-btn active" data-filter="all">ALL</button>
+                        <button class="sort-btn" data-filter="tool">TOOLS</button>
+                        <button class="sort-btn" data-filter="resource">MATERIALS</button>
+                        <button class="sort-btn" data-filter="consumable">CONSUMABLES</button>
+                    </div>
+                    <div class="crafting-scroll-container" id="crafting-scroll-container">
                         <div id="crafting-list"></div>
                     </div>
-                    
-                    <!-- Skills Tab -->
-                    <div id="tab-skills" class="tab-panel">
-                        <canvas id="sphere-grid-canvas"></canvas>
-                        <div id="skill-points">SP: <span id="sp-amount">0</span></div>
+                </div>
+                
+                <!-- SKILLS TAB -->
+                <div class="tab-content" id="tab-skills">
+                    <div id="skills-container">
+                        <canvas id="sphere-canvas"></canvas>
+                        <div id="skill-points"><div class="sp-label">Skill Points</div><div class="sp-value">5</div></div>
                     </div>
-                    
-                    <!-- Quests Tab -->
-                    <div id="tab-quests" class="tab-panel">
-                        <div id="quest-list"></div>
+                </div>
+                
+                <!-- CHARACTER TAB -->
+                <div class="tab-content" id="tab-character">
+                    <div id="character-sheet">
+                        <div id="stats-panel">
+                            <div class="panel-title">CHARACTER STATS</div>
+                            <div id="char-header">
+                                <div class="char-name">Wanderer</div>
+                                <div class="char-class">Adventurer</div>
+                            </div>
+                            <div id="level-section">
+                                <div class="level-row">
+                                    <span class="stat-label">Level</span>
+                                    <span class="stat-value" id="char-level">1</span>
+                                </div>
+                                <div class="xp-bar-container">
+                                    <div class="xp-bar-fill" id="xp-fill"></div>
+                                    <span class="xp-text" id="xp-text">0 / 100 XP</span>
+                                </div>
+                            </div>
+                            <div id="stats-grid">
+                                <div class="stat-row"><span>STR</span><span id="stat-str">10</span></div>
+                                <div class="stat-row"><span>DEX</span><span id="stat-dex">10</span></div>
+                                <div class="stat-row"><span>CON</span><span id="stat-con">10</span></div>
+                                <div class="stat-row"><span>INT</span><span id="stat-int">10</span></div>
+                                <div class="stat-row"><span>WIS</span><span id="stat-wis">10</span></div>
+                                <div class="stat-row"><span>CHA</span><span id="stat-cha">10</span></div>
+                            </div>
+                            <div id="combat-stats">
+                                <div class="stat-row"><span>HP</span><span id="stat-hp">100/100</span></div>
+                                <div class="stat-row"><span>MP</span><span id="stat-mp">50/50</span></div>
+                                <div class="stat-row"><span>ATK</span><span id="stat-atk">5</span></div>
+                                <div class="stat-row"><span>DEF</span><span id="stat-def">2</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

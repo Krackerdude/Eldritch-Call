@@ -459,7 +459,7 @@ function spawnWorld() {
             const biome = BiomeSystem.getBiomeAt(x, z);
             const types = ResourceSystem.getTreeTypesForBiome(biome.id);
             const typeIdx = types[Math.floor(Math.random() * types.length)];
-            ResourceSystem.createTree(x, y, z, 0.15 + Math.random() * 0.1, typeIdx);
+            ResourceSystem.createTree(x, y, z, 1.0 + Math.random() * 2.0, typeIdx);
         }
     }
     
