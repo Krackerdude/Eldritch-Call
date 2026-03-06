@@ -29,7 +29,7 @@ import { FogSystem } from './systems/FogSystem.js';
 // Entity Systems
 import { ResourceSystem } from './resources.js';
 import { CreatureSystem } from './systems/CreatureSystem.js';
-import { NPCSystem, NPC_APPEARANCES, npcList as npcListRef, biomeNPCList as biomeNPCListRef } from './npc.js';
+import { NPCSystem, NPC_APPEARANCES, NPC_DATA, npcList as npcListRef, biomeNPCList as biomeNPCListRef } from './npc.js';
 import { POISystem } from './poi.js';
 
 // Player Systems
@@ -42,7 +42,7 @@ import { UISystem } from './ui.js';
 import { DialogueSystem } from './systems/DialogueSystem.js';
 import { ShopSystem } from './systems/ShopSystem.js';
 import { QuestSystem } from './systems/QuestSystem.js';
-import { LoreBookSystem } from './systems/LoreBookSystem.js';
+import { LoreBookSystem, loreBookData, addThought } from './systems/LoreBookSystem.js';
 import { CompassSystem } from './systems/CompassSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
 import { HeldItemSystem } from './systems/HeldItemSystem.js';
@@ -334,8 +334,16 @@ function initSystems() {
 
     // Initialize quests
     QuestSystem.init({
-        InventorySystem,
-        UISystem
+        npcList: npcListRef,
+        biomeNPCList: biomeNPCListRef,
+        loreBookData,
+        inventory: InventorySystem,
+        NPC_DATA,
+        addThought,
+        showTransaction: UISystem.showTransaction,
+        updateInventoryUI: UISystem.updateInventoryUI,
+        renderQuests: () => LoreBookSystem.renderQuests(),
+        LoreBookSystem
     });
 
     // Initialize dialogue (after Shop & Quest so refs are fully initialized)
@@ -544,7 +552,10 @@ function spawnWorld() {
     // Initialize NPC system and spawn NPCs
     NPCSystem.init({ scene, getHeight, CONFIG, DialogueSystem, ShopSystem });
     spawnNPCs();
-    
+
+    // Generate quests for spawned NPCs and create 3D markers
+    QuestSystem.initialize();
+
     console.log('World spawned');
 }
 
