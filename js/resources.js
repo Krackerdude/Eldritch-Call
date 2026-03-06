@@ -854,38 +854,46 @@ class Tree {
     destroy() {
         this.isDestroyed = true;
         if (treeGrid) treeGrid.remove(this);
-        
-        if (_deps.ParticleSystem) {
-            _deps.ParticleSystem.spawnDestruction(this.group.position, 'tree');
-        }
-        
+
+        const fallDir = Math.random() * Math.PI * 2;
+        let prog = 0;
+        const treeNames = {
+            oak: 'Oak', pine: 'Pine', birch: 'Birch', maple: 'Maple',
+            ancient: 'Ancient Tree', palm: 'Palm', willow: 'Willow'
+        };
+        const resourceName = treeNames[this.treeType] || 'Tree';
+        const resourceId = this.treeType || 'oak';
+
         const animate = () => {
-            this.group.scale.y -= 0.03;
+            prog += 0.02;
+            this.group.rotation.z = Math.sin(fallDir) * prog * 1.2;
+            this.group.rotation.x = Math.cos(fallDir) * prog * 1.2;
             this.group.position.y -= 0.2;
-            if (this.group.scale.y > 0.1) {
+
+            if (prog < 1) {
                 requestAnimationFrame(animate);
             } else {
+                // Impact particles at base when tree hits ground
+                if (_deps.ParticleSystem) {
+                    const basePos = new THREE.Vector3(this.posX, this.baseY || 0, this.posZ);
+                    _deps.ParticleSystem.spawnImpact(basePos, this.treeType || 'wood', 30);
+                    _deps.ParticleSystem.spawnDestruction(basePos, 'tree');
+                }
+
                 _deps.scene.remove(this.group);
-                
-                const woodAmount = Math.floor(3 + Math.random() * 4);
-                const treeNames = {
-                    oak: 'Oak', pine: 'Pine', birch: 'Birch', maple: 'Maple',
-                    ancient: 'Ancient Tree', palm: 'Palm', willow: 'Willow'
-                };
-                const resourceName = treeNames[this.treeType] || 'Tree';
-                const resourceId = this.treeType || 'oak';
-                
+
+                const woodAmount = Math.floor(4 + Math.random() * 4 + this.scaleMult * 3);
                 _deps.inventory.add('wood', woodAmount);
                 if (Math.random() < 0.4) _deps.inventory.add('fiber', Math.floor(1 + Math.random() * 3));
-                
+
                 if (_deps.showPickupNotification) {
                     _deps.showPickupNotification(resourceName, woodAmount + ' wood', 'tree');
                 }
-                
+
                 if (_deps.discoverMaterial) {
                     _deps.discoverMaterial('tree', resourceId);
                 }
-                
+
                 harvestableResources.splice(harvestableResources.indexOf(this), 1);
                 swayingTrees.splice(swayingTrees.indexOf(this), 1);
             }
