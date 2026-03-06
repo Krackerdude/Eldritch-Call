@@ -29,7 +29,7 @@ import { FogSystem } from './systems/FogSystem.js';
 // Entity Systems
 import { ResourceSystem } from './resources.js';
 import { CreatureSystem } from './systems/CreatureSystem.js';
-import { NPCSystem } from './npc.js';
+import { NPCSystem, NPC_APPEARANCES, npcList as npcListRef, biomeNPCList as biomeNPCListRef } from './npc.js';
 import { POISystem } from './poi.js';
 
 // Player Systems
@@ -318,7 +318,12 @@ function initSystems() {
     
     // Initialize dialogue
     DialogueSystem.init({
-        UISystem
+        UISystem,
+        npcList: npcListRef,
+        biomeNPCList: biomeNPCListRef,
+        interiorNPCList,
+        NPC_APPEARANCES,
+        renderer
     });
     
     // Initialize shop
@@ -604,13 +609,9 @@ function handleInteraction() {
         console.log('Interacting with POI:', nearestPOI);
         // Handle POI interaction
     }
-    
-    // Find nearest interactable NPC
-    const nearestNPC = NPCSystem.findNearest(player.position.x, player.position.z, 5);
-    if (nearestNPC) {
-        console.log('Interacting with NPC:', nearestNPC);
-        DialogueSystem.openDialogue(nearestNPC);
-    }
+
+    // Handle NPC interaction via DialogueSystem (uses proximity-tracked nearbyNPC)
+    DialogueSystem.handleInteraction();
 }
 
 function spawnParticles(pos, color, count = 8) {
@@ -700,7 +701,10 @@ function animate() {
         
         // Update player movement
         updatePlayerMovement(delta);
-        
+
+        // Update NPC proximity prompt
+        DialogueSystem.update(player.position, currentInterior);
+
         // Update entities
         updateEntities(delta);
         
