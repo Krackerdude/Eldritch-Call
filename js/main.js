@@ -323,27 +323,31 @@ function initSystems() {
         SHOP_ICONS
     });
     
-    // Initialize dialogue
+    // Initialize shop
+    ShopSystem.init({
+        InventorySystem,
+        UISystem,
+        SHOP_ICONS,
+        itemIcons,
+        renderer
+    });
+
+    // Initialize quests
+    QuestSystem.init({
+        InventorySystem,
+        UISystem
+    });
+
+    // Initialize dialogue (after Shop & Quest so refs are fully initialized)
     DialogueSystem.init({
         UISystem,
+        ShopSystem,
+        QuestSystem,
         npcList: npcListRef,
         biomeNPCList: biomeNPCListRef,
         interiorNPCList,
         NPC_APPEARANCES,
         renderer
-    });
-    
-    // Initialize shop
-    ShopSystem.init({
-        InventorySystem,
-        UISystem,
-        SHOP_ICONS
-    });
-    
-    // Initialize quests
-    QuestSystem.init({
-        InventorySystem,
-        UISystem
     });
     
     // LoreBookSystem DOM event binding
@@ -445,7 +449,7 @@ function initInput() {
                 }
                 return;
             }
-            if (shopOpen) { ShopSystem.close(); shopOpen = false; return; }
+            if (ShopSystem.isOpen()) { ShopSystem.close(); shopOpen = false; return; }
             if (currentDialogue) { DialogueSystem.closeDialogue(); currentDialogue = null; return; }  // Fixed
             if (inventoryOpen) { UISystem.toggleInventory(); inventoryOpen = false; HeldItemSystem.setVisible(true); return; }
             if (loreBookOpen) { LoreBookSystem.toggle(); loreBookOpen = false; return; }
@@ -455,7 +459,7 @@ function initInput() {
             return;
         }
         
-        if (inventoryOpen || shopOpen || currentDialogue) return;
+        if (inventoryOpen || ShopSystem.isOpen() || currentDialogue) return;
         if (typeof window.isGamePaused === 'function' && window.isGamePaused()) return;
         
         if (k === 'w') keys.w = true;
@@ -817,7 +821,7 @@ function animate() {
         updateVisibility();
         
         // Update targeting (every 4th frame, matching HTML build)
-        if (frame % 4 === 0 && !currentInterior && !shopOpen && !currentDialogue) {
+        if (frame % 4 === 0 && !currentInterior && !ShopSystem.isOpen() && !currentDialogue) {
             updateTargeting();
         }
 
