@@ -103,14 +103,15 @@ const LoreBookSystem = (function() {
                 { id: 'mushroom', name: 'Forest Mushroom', icon: 'mushroom', discovered: false, description: 'Bioluminescent fungi of shaded groves', count: 0, type: 'groundcover' },
                 { id: 'fern', name: 'Woodland Fern', icon: 'fern', discovered: false, description: 'Delicate fronds carpet the forest floor', count: 0, type: 'groundcover' },
                 { id: 'flower', name: 'Wildflower', icon: 'flower', discovered: false, description: 'Colorful blooms dot meadows and glades', count: 0, type: 'groundcover' },
-                // Minerals/Rocks
-                { id: 'granite', name: 'Granite', icon: 'rock', discovered: false, description: 'Dense igneous rock, excellent for building', count: 0, type: 'rock' },
-                { id: 'slate', name: 'Slate', icon: 'rock', discovered: false, description: 'Layered sedimentary stone that splits cleanly', count: 0, type: 'rock' },
-                { id: 'mossy', name: 'Mossy Stone', icon: 'rock', discovered: false, description: 'Ancient rock covered in verdant moss', count: 0, type: 'rock' },
-                { id: 'sandstone', name: 'Sandstone', icon: 'rock', discovered: false, description: 'Warm-colored stone formed from compressed sand', count: 0, type: 'rock' },
-                { id: 'crystal', name: 'Crystal Cluster', icon: 'crystal', discovered: false, description: 'Precious crystals humming with latent energy', count: 0, type: 'rock' },
-                { id: 'obsidian', name: 'Obsidian', icon: 'rock', discovered: false, description: 'Volcanic glass sharper than steel', count: 0, type: 'rock' },
-                { id: 'boulder', name: 'Boulder', icon: 'rock', discovered: false, description: 'Massive rounded stone smoothed by ages', count: 0, type: 'rock' }
+            ],
+            minerals: [
+                { id: 'granite', name: 'Granite', icon: 'rock', discovered: false, description: 'Dense igneous rock, excellent for building', count: 0 },
+                { id: 'slate', name: 'Slate', icon: 'rock', discovered: false, description: 'Layered sedimentary stone that splits cleanly', count: 0 },
+                { id: 'mossy', name: 'Mossy Stone', icon: 'rock', discovered: false, description: 'Ancient rock covered in verdant moss', count: 0 },
+                { id: 'sandstone', name: 'Sandstone', icon: 'rock', discovered: false, description: 'Warm-colored stone formed from compressed sand', count: 0 },
+                { id: 'crystal', name: 'Crystal Cluster', icon: 'crystal', discovered: false, description: 'Precious crystals humming with latent energy', count: 0 },
+                { id: 'obsidian', name: 'Obsidian', icon: 'rock', discovered: false, description: 'Volcanic glass sharper than steel', count: 0 },
+                { id: 'boulder', name: 'Boulder', icon: 'rock', discovered: false, description: 'Massive rounded stone smoothed by ages', count: 0 }
             ],
             towns: [
                 { id: 'valdris_town', name: 'Valdris Township', icon: 'town', discovered: true, description: 'The central hub of civilization' },
@@ -156,12 +157,46 @@ const LoreBookSystem = (function() {
         ]
     };
     
+    // Discovery icons SVG
+    const _discoveryIcons = {
+        grass: '<svg viewBox="0 0 32 32"><path d="M8 28V18l4-6v16M16 28V14l4-8v22M24 28V16l-4-4v16" stroke="currentColor" fill="none" stroke-width="2"/></svg>',
+        tree: '<svg viewBox="0 0 32 32"><path d="M16 4l-8 12h4l-6 10h20l-6-10h4z" fill="currentColor"/><rect x="14" y="24" width="4" height="6" fill="currentColor"/></svg>',
+        mountain: '<svg viewBox="0 0 32 32"><path d="M4 28L16 6l12 22H4z" fill="currentColor"/><path d="M10 28l6-10 6 10" fill="currentColor" opacity="0.6"/></svg>',
+        water: '<svg viewBox="0 0 32 32"><path d="M4 14q6-4 12 0t12 0M4 20q6-4 12 0t12 0M4 26q6-4 12 0t12 0" stroke="currentColor" fill="none" stroke-width="2"/></svg>',
+        sun: '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="6" fill="currentColor"/><path d="M16 4v4M16 24v4M4 16h4M24 16h4M7 7l3 3M22 22l3 3M7 25l3-3M22 10l3-3" stroke="currentColor" stroke-width="2"/></svg>',
+        snow: '<svg viewBox="0 0 32 32"><path d="M16 4v24M4 16h24M8 8l16 16M24 8L8 24" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="currentColor"/></svg>',
+        crystal: '<svg viewBox="0 0 32 32"><path d="M16 2l8 12-8 16-8-16z" fill="currentColor"/><path d="M16 2l-4 10 4 6 4-6z" fill="currentColor" opacity="0.6"/></svg>',
+        ruins: '<svg viewBox="0 0 32 32"><rect x="4" y="20" width="6" height="8" fill="currentColor"/><rect x="12" y="16" width="4" height="12" fill="currentColor"/><rect x="22" y="22" width="6" height="6" fill="currentColor"/><path d="M4 20l3-8M10 20l-2-6M12 16l2-8M16 16l-1-4M22 22l2-10M28 22l-3-6" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>',
+        deer: '<svg viewBox="0 0 32 32"><ellipse cx="20" cy="18" rx="8" ry="6" fill="currentColor"/><circle cx="10" cy="12" r="4" fill="currentColor"/><path d="M8 8l-2-4M8 8l2-4M12 8l-1-4M12 8l1-4" stroke="currentColor" stroke-width="1.5"/><path d="M20 24v4M26 22v6" stroke="currentColor" stroke-width="2"/></svg>',
+        wolf: '<svg viewBox="0 0 32 32"><ellipse cx="18" cy="18" rx="10" ry="7" fill="currentColor"/><path d="M6 14l2-6 4 4M8 16l-4 1" fill="currentColor"/><circle cx="10" cy="14" r="1.5" fill="#333"/><path d="M20 25l2 5M26 24l2 4" stroke="currentColor" stroke-width="2"/></svg>',
+        boar: '<svg viewBox="0 0 32 32"><ellipse cx="16" cy="18" rx="10" ry="8" fill="currentColor"/><ellipse cx="6" cy="18" rx="4" ry="3" fill="currentColor"/><path d="M3 16l-1-2M3 20l-1 2" stroke="currentColor" stroke-width="2"/><circle cx="8" cy="16" r="1" fill="#333"/></svg>',
+        rabbit: '<svg viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="8" ry="6" fill="currentColor"/><circle cx="12" cy="12" r="4" fill="currentColor"/><ellipse cx="8" cy="6" rx="2" ry="5" fill="currentColor"/><ellipse cx="14" cy="6" rx="2" ry="5" fill="currentColor"/></svg>',
+        bear: '<svg viewBox="0 0 32 32"><ellipse cx="16" cy="20" rx="12" ry="8" fill="currentColor"/><circle cx="16" cy="10" r="6" fill="currentColor"/><circle cx="8" cy="6" r="3" fill="currentColor"/><circle cx="24" cy="6" r="3" fill="currentColor"/></svg>',
+        eagle: '<svg viewBox="0 0 32 32"><path d="M16 8l-12 8 6 2-4 8 10-6 10 6-4-8 6-2z" fill="currentColor"/><circle cx="16" cy="10" r="3" fill="currentColor"/></svg>',
+        pine: '<svg viewBox="0 0 32 32"><path d="M16 2l-6 8h3l-5 8h3l-6 10h22l-6-10h3l-5-8h3z" fill="currentColor"/><rect x="14" y="26" width="4" height="4" fill="currentColor"/></svg>',
+        mushroom: '<svg viewBox="0 0 32 32"><ellipse cx="16" cy="14" rx="10" ry="8" fill="currentColor"/><rect x="12" y="18" width="8" height="10" fill="currentColor" opacity="0.7"/></svg>',
+        flower: '<svg viewBox="0 0 32 32"><circle cx="16" cy="12" r="4" fill="currentColor"/><circle cx="10" cy="10" r="3" fill="currentColor" opacity="0.8"/><circle cx="22" cy="10" r="3" fill="currentColor" opacity="0.8"/><circle cx="12" cy="16" r="3" fill="currentColor" opacity="0.8"/><circle cx="20" cy="16" r="3" fill="currentColor" opacity="0.8"/><path d="M16 16v12" stroke="currentColor" stroke-width="2"/></svg>',
+        fern: '<svg viewBox="0 0 32 32"><path d="M16 28V12" stroke="currentColor" stroke-width="2"/><path d="M16 12l-6-4M16 15l-5-2M16 18l-4-1M16 21l-3 0M16 12l6-4M16 15l5-2M16 18l4-1M16 21l3 0" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>',
+        rock: '<svg viewBox="0 0 32 32"><path d="M6 24l4-10 6 2 8-8 4 6-4 10-8 2z" fill="currentColor"/><path d="M10 14l4 1 4-4" stroke="currentColor" stroke-width="1" opacity="0.5"/></svg>',
+        town: '<svg viewBox="0 0 32 32"><rect x="4" y="16" width="8" height="12" fill="currentColor"/><rect x="14" y="10" width="10" height="18" fill="currentColor"/><path d="M14 10l5-6 5 6" fill="currentColor"/><rect x="6" y="18" width="3" height="4" fill="currentColor" opacity="0.5"/><rect x="17" y="14" width="4" height="4" fill="currentColor" opacity="0.5"/></svg>',
+        anchor: '<svg viewBox="0 0 32 32"><circle cx="16" cy="6" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 10v16M8 22l8 4 8-4M4 18h6M22 18h6" stroke="currentColor" stroke-width="2"/></svg>',
+        camp: '<svg viewBox="0 0 32 32"><path d="M16 6l-12 18h24z" fill="currentColor"/><path d="M16 6l-6 18h12z" fill="currentColor" opacity="0.6"/><path d="M4 28h24" stroke="currentColor" stroke-width="2"/></svg>',
+        cactus: '<svg viewBox="0 0 32 32"><rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/><rect x="6" y="14" width="10" height="4" rx="1" fill="currentColor"/><rect x="16" y="18" width="10" height="4" rx="1" fill="currentColor"/></svg>',
+        palm: '<svg viewBox="0 0 32 32"><rect x="14" y="14" width="4" height="14" fill="currentColor" opacity="0.8"/><path d="M16 6c-8 4-10 8-10 8l10-2M16 6c8 4 10 8 10 8l-10-2" stroke="currentColor" fill="none" stroke-width="2"/></svg>',
+        deadTree: '<svg viewBox="0 0 32 32"><rect x="14" y="10" width="4" height="18" fill="currentColor"/><path d="M16 10l-6-6M16 10l6-6M16 14l-8 2M16 14l8 2M16 18l-5 4M16 18l5 4" stroke="currentColor" stroke-width="2"/></svg>'
+    };
+
     // Private render functions
     function _showNotificationBadge() {
         const badge = document.querySelector('#lore-book-hint .notification-badge');
         if (badge) badge.classList.add('visible');
     }
-    
+
+    function _hideNotificationBadge() {
+        const badge = document.querySelector('#lore-book-hint .notification-badge');
+        if (badge) badge.classList.remove('visible');
+    }
+
     return {
         // State getters
         isOpen() { return _isOpen; },
@@ -170,7 +205,30 @@ const LoreBookSystem = (function() {
         
         // State setters
         setOpen(open) { _isOpen = open; },
-        
+
+        // Initialize DOM event listeners
+        init() {
+            const self = this;
+
+            // Hint icon click
+            const hint = document.getElementById('lore-book-hint');
+            if (hint) hint.addEventListener('click', () => self.toggle());
+
+            // Close button
+            const closeBtn = document.getElementById('lore-book-close');
+            if (closeBtn) closeBtn.addEventListener('click', () => self.toggle());
+
+            // Tab buttons
+            document.querySelectorAll('#lore-book-tabs .lore-tab').forEach(tab => {
+                tab.addEventListener('click', () => self.switchTab(tab.dataset.tab));
+            });
+
+            // Discovery subtab buttons
+            document.querySelectorAll('#discoveries-subtabs .discovery-subtab').forEach(btn => {
+                btn.addEventListener('click', () => self.switchDiscoveryTab(btn.dataset.subtab));
+            });
+        },
+
         // Open/close the lore book
         toggle() {
             _isOpen = !_isOpen;
@@ -181,6 +239,7 @@ const LoreBookSystem = (function() {
                 if (overlay) overlay.classList.add('visible');
                 if (crosshair) crosshair.classList.add('hidden');
                 document.exitPointerLock();
+                _hideNotificationBadge();
                 this.render();
             } else {
                 if (overlay) overlay.classList.remove('visible');
@@ -448,18 +507,37 @@ const LoreBookSystem = (function() {
             }
         },
         
+        switchDiscoveryTab(subtab) {
+            document.querySelectorAll('.discovery-subtab').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.subtab === subtab);
+            });
+            ['biomes', 'fauna', 'flora', 'minerals', 'towns'].forEach(type => {
+                const grid = document.getElementById(`discovery-${type}`);
+                if (grid) grid.style.display = type === subtab ? 'grid' : 'none';
+            });
+            this.renderDiscoveries(subtab);
+        },
+
         renderDiscoveries(type) {
             const container = document.getElementById(`discovery-${type}`);
             if (!container) return;
-            
+
             const items = _data.discoveries[type] || [];
-            container.innerHTML = items.map(item => `
-                <div class="discovery-card ${item.discovered ? '' : 'undiscovered'}">
-                    <div class="discovery-icon">?</div>
-                    <div class="discovery-name">${item.discovered ? item.name : '???'}</div>
-                    <div class="discovery-detail">${item.discovered ? (item.description || '') : 'Not yet discovered.'}</div>
-                </div>
-            `).join('');
+            container.innerHTML = items.map(item => {
+                const iconKey = item.icon || type;
+                const iconSvg = _discoveryIcons[iconKey] || _discoveryIcons.tree || '';
+                const countText = (item.count !== undefined) ?
+                    `<div class="discovery-count">${item.count > 0 ? item.count : '&empty;'} encountered</div>` : '';
+
+                return `
+                    <div class="discovery-card ${item.discovered ? '' : 'undiscovered'}">
+                        <div class="discovery-icon">${iconSvg}</div>
+                        <div class="discovery-name">${item.discovered ? item.name : '???'}</div>
+                        <div class="discovery-detail">${item.discovered ? (item.description || '') : 'Not yet discovered.'}</div>
+                        ${countText}
+                    </div>
+                `;
+            }).join('');
         },
         
         renderThoughts() {

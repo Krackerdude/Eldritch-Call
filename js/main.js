@@ -285,7 +285,10 @@ function initSystems() {
         inventory: InventorySystem,
         spawnParticles,
         showPickupNotification: UISystem.showPickupNotification,
-        discoverMaterial: LoreBookSystem.discoverLore,
+        discoverMaterial: (resourceType, resourceSubType) => {
+            const category = resourceType === 'rock' ? 'minerals' : 'flora';
+            LoreBookSystem.discoverEntry(category, resourceSubType);
+        },
         treeGrid,
         rockGrid
     });
@@ -331,7 +334,8 @@ function initSystems() {
         UISystem
     });
     
-    // LoreBookSystem is auto-initialized (IIFE) - no init needed
+    // LoreBookSystem DOM event binding
+    LoreBookSystem.init();
     
     // Initialize compass (finds DOM element automatically)
     CompassSystem.init();
