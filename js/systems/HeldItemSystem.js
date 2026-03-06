@@ -12,7 +12,8 @@ let _deps = {
     InventorySystem: null,
     CombatSystem: null,
     getKeys: null,
-    getTime: null
+    getTime: null,
+    getPlayer: null
 };
 
 const HeldItemSystem = (function() {
@@ -531,6 +532,356 @@ const HeldItemSystem = (function() {
         return sword;
     }
 
+    // === EASING FUNCTIONS - exact port from HTML build ===
+    function easeOutBack(t) {
+        const c1 = 1.70158;
+        const c3 = c1 + 1;
+        return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+    }
+    function easeInQuad(t) { return t * t; }
+    function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+    // === SWING ANIMATION - exact port from HTML build updateSwing() ===
+    function _updateSwing(delta) {
+        const { CombatSystem, InventorySystem } = _deps;
+        if (!CombatSystem || !CombatSystem.isSwinging()) return;
+
+        const item = InventorySystem ? InventorySystem.getSelectedItem() : null;
+        const itemId = item ? item.id : 'hand';
+        const itemType = item ? item.type : 'hand';
+
+        // Use CombatSystem for swing speed calculation
+        const swingProgress = CombatSystem.updateSwingProgress(delta, itemId, itemType);
+        const p = Math.min(swingProgress, 1);
+        const g = _heldItemGroup;
+        const rp = _restPosition;
+
+        if (itemType === 'hand') {
+            // HAND - Punch animation
+            if (p < 0.3) {
+                const t = easeOutQuad(p / 0.3);
+                g.rotation.x = -0.25 - t * 0.4;
+                g.rotation.z = t * 0.15;
+                g.position.z = rp.z + t * 0.08;
+            } else if (p < 0.6) {
+                const t = easeOutBack((p - 0.3) / 0.3);
+                g.rotation.x = -0.65 + t * 0.8;
+                g.rotation.z = 0.15 - t * 0.15;
+                g.position.z = rp.z + 0.08 - t * 0.18;
+                g.position.y = rp.y + t * 0.05;
+            } else {
+                const t = easeOutQuad((p - 0.6) / 0.4);
+                g.rotation.x = 0.15 - t * 0.15;
+                g.rotation.z = 0;
+                g.position.z = rp.z - 0.10 + t * 0.10;
+                g.position.y = rp.y + 0.05 - t * 0.05;
+            }
+        } else if (itemId === 'mace') {
+            // MACE - Holy overhead smash (Paladin)
+            if (p < 0.35) {
+                const t = easeOutQuad(p / 0.35);
+                g.rotation.x = 0.2 + t * 1.8;
+                g.rotation.z = 0.25 - t * 0.1;
+                g.position.y = rp.y + t * 0.35;
+                g.position.z = rp.z + t * 0.1;
+            } else if (p < 0.55) {
+                const t = easeInQuad((p - 0.35) / 0.2);
+                g.rotation.x = 2.0 - t * 2.5;
+                g.position.y = rp.y + 0.35 - t * 0.6;
+                g.position.z = rp.z + 0.1 - t * 0.25;
+            } else {
+                const t = easeOutQuad((p - 0.55) / 0.45);
+                const holy = Math.sin(t * Math.PI * 2) * (1 - t) * 0.1;
+                g.rotation.x = -0.5 + t * 0.7 + holy;
+                g.position.y = rp.y - 0.25 + t * 0.25 + holy;
+                g.position.z = rp.z - 0.15 + t * 0.15;
+            }
+        } else if (itemId === 'flintlock') {
+            // FLINTLOCK - Aim, fire, recoil (Machinist)
+            if (p < 0.4) {
+                const t = easeOutQuad(p / 0.4);
+                g.rotation.x = 0.15 - t * 0.4;
+                g.rotation.y = t * 0.1;
+                g.position.y = rp.y + t * 0.15;
+                g.position.z = rp.z - t * 0.1;
+                g.position.x = rp.x - t * 0.1;
+            } else if (p < 0.5) {
+                const t = easeOutBack((p - 0.4) / 0.1);
+                g.rotation.x = -0.25 + t * 0.6;
+                g.position.z = rp.z - 0.1 + t * 0.15;
+                g.position.y = rp.y + 0.15 + t * 0.1;
+            } else {
+                const t = easeOutQuad((p - 0.5) / 0.5);
+                g.rotation.x = 0.35 - t * 0.35;
+                g.rotation.y = 0.1 - t * 0.1;
+                g.position.y = rp.y + 0.25 - t * 0.25;
+                g.position.z = rp.z + 0.05 - t * 0.05;
+                g.position.x = rp.x - 0.1 + t * 0.1;
+            }
+        } else if (itemId === 'lance') {
+            // LANCE - Charging thrust (Dragoon)
+            if (p < 0.25) {
+                const t = easeOutQuad(p / 0.25);
+                g.rotation.x = 0.1 - t * 0.2;
+                g.position.z = rp.z + t * 0.2;
+                g.position.y = rp.y - t * 0.05;
+            } else if (p < 0.5) {
+                const t = easeOutBack((p - 0.25) / 0.25);
+                g.rotation.x = -0.1 + t * 0.15;
+                g.position.z = rp.z + 0.2 - t * 0.45;
+                g.position.y = rp.y - 0.05 + t * 0.1;
+            } else if (p < 0.7) {
+                g.position.z = rp.z - 0.25;
+                g.rotation.x = 0.05;
+            } else {
+                const t = easeOutQuad((p - 0.7) / 0.3);
+                g.position.z = rp.z - 0.25 + t * 0.25;
+                g.rotation.x = 0.05 - t * 0.05;
+                g.position.y = rp.y + 0.05 - t * 0.05;
+            }
+        } else if (itemId === 'longbow') {
+            // LONGBOW - Draw, aim, release (Ranger)
+            if (p < 0.45) {
+                const t = easeOutQuad(p / 0.45);
+                g.rotation.y = t * 0.3;
+                g.rotation.z = 0.1 - t * 0.15;
+                g.position.x = rp.x - t * 0.15;
+                g.position.z = rp.z + t * 0.08;
+            } else if (p < 0.55) {
+                const t = easeOutBack((p - 0.45) / 0.1);
+                g.rotation.y = 0.3 - t * 0.2;
+                g.position.x = rp.x - 0.15 + t * 0.08;
+                g.rotation.z = -0.05 + t * 0.1;
+            } else {
+                const t = easeOutQuad((p - 0.55) / 0.45);
+                g.rotation.y = 0.1 - t * 0.1;
+                g.rotation.z = 0.05 + t * 0.05;
+                g.position.x = rp.x - 0.07 + t * 0.07;
+                g.position.z = rp.z + 0.08 - t * 0.08;
+            }
+        } else if (itemId === 'katana') {
+            // KATANA - Lightning-fast iaijutsu slash (Samurai)
+            if (p < 0.15) {
+                const t = easeOutQuad(p / 0.15);
+                g.rotation.y = t * 0.8;
+                g.rotation.z = 0.15 + t * 0.3;
+                g.position.x = rp.x + t * 0.2;
+            } else if (p < 0.35) {
+                const t = easeOutBack((p - 0.15) / 0.2);
+                g.rotation.y = 0.8 - t * 1.8;
+                g.rotation.z = 0.45 - t * 0.6;
+                g.rotation.x = t * 0.2;
+                g.position.x = rp.x + 0.2 - t * 0.5;
+                g.position.z = rp.z - t * 0.15;
+            } else if (p < 0.5) {
+                g.rotation.y = -1.0;
+                g.rotation.z = -0.15;
+                g.position.x = rp.x - 0.3;
+            } else {
+                const t = easeOutQuad((p - 0.5) / 0.5);
+                g.rotation.y = -1.0 + t * 1.0;
+                g.rotation.z = -0.15 + t * 0.4;
+                g.rotation.x = 0.2 - t * 0.2;
+                g.position.x = rp.x - 0.3 + t * 0.3;
+                g.position.z = rp.z - 0.15 + t * 0.15;
+            }
+        } else if (itemId === 'staff') {
+            // STAFF - Channel and release magic blast (Mage)
+            if (p < 0.4) {
+                const t = easeOutQuad(p / 0.4);
+                g.rotation.x = 0.15 + t * 0.4;
+                g.rotation.z = 0.2 - t * 0.3;
+                g.position.y = rp.y + t * 0.15;
+                g.position.z = rp.z - t * 0.1;
+                const vibe = Math.sin(p * 50) * 0.01 * t;
+                g.position.x = rp.x + vibe;
+            } else if (p < 0.55) {
+                const t = easeOutBack((p - 0.4) / 0.15);
+                g.rotation.x = 0.55 - t * 0.8;
+                g.position.y = rp.y + 0.15 + t * 0.1;
+                g.position.z = rp.z - 0.1 - t * 0.15;
+            } else {
+                const t = easeOutQuad((p - 0.55) / 0.45);
+                g.rotation.x = -0.25 + t * 0.25;
+                g.rotation.z = -0.1 + t * 0.3;
+                g.position.y = rp.y + 0.25 - t * 0.25;
+                g.position.z = rp.z - 0.25 + t * 0.25;
+            }
+        } else if (itemId === 'broadsword') {
+            // BROADSWORD - Heavy two-handed cleave (Knight)
+            if (p < 0.4) {
+                const t = easeOutQuad(p / 0.4);
+                g.rotation.x = 0.15 + t * 1.2;
+                g.rotation.y = t * 0.5;
+                g.rotation.z = 0.22 + t * 0.4;
+                g.position.y = rp.y + t * 0.3;
+                g.position.x = rp.x + t * 0.15;
+            } else if (p < 0.65) {
+                const t = easeInQuad((p - 0.4) / 0.25);
+                g.rotation.x = 1.35 - t * 1.8;
+                g.rotation.y = 0.5 - t * 1.0;
+                g.rotation.z = 0.62 - t * 0.8;
+                g.position.y = rp.y + 0.3 - t * 0.55;
+                g.position.x = rp.x + 0.15 - t * 0.35;
+                g.position.z = rp.z - t * 0.15;
+            } else {
+                const t = easeOutQuad((p - 0.65) / 0.35);
+                const shake = Math.sin(t * Math.PI * 2) * (1 - t) * 0.05;
+                g.rotation.x = -0.45 + t * 0.45 + shake;
+                g.rotation.y = -0.5 + t * 0.5;
+                g.rotation.z = -0.18 + t * 0.4;
+                g.position.y = rp.y - 0.25 + t * 0.25;
+                g.position.x = rp.x - 0.2 + t * 0.2;
+                g.position.z = rp.z - 0.15 + t * 0.15;
+            }
+        } else if (itemId === 'dagger') {
+            // DAGGER - Quick double stab (Thief)
+            if (p < 0.2) {
+                const t = easeOutQuad(p / 0.2);
+                g.rotation.x = 0.15 - t * 0.3;
+                g.position.z = rp.z + t * 0.1;
+            } else if (p < 0.35) {
+                const t = easeOutBack((p - 0.2) / 0.15);
+                g.rotation.x = -0.15 + t * 0.4;
+                g.position.z = rp.z + 0.1 - t * 0.25;
+            } else if (p < 0.5) {
+                const t = easeOutQuad((p - 0.35) / 0.15);
+                g.rotation.x = 0.25 - t * 0.4;
+                g.rotation.y = t * 0.3;
+                g.position.z = rp.z - 0.15 + t * 0.2;
+                g.position.x = rp.x + t * 0.1;
+            } else if (p < 0.7) {
+                const t = easeOutBack((p - 0.5) / 0.2);
+                g.rotation.x = -0.15 + t * 0.35;
+                g.rotation.y = 0.3 - t * 0.5;
+                g.position.z = rp.z + 0.05 - t * 0.22;
+                g.position.x = rp.x + 0.1 - t * 0.15;
+            } else {
+                const t = easeOutQuad((p - 0.7) / 0.3);
+                g.rotation.x = 0.2 - t * 0.2;
+                g.rotation.y = -0.2 + t * 0.2;
+                g.position.z = rp.z - 0.17 + t * 0.17;
+                g.position.x = rp.x - 0.05 + t * 0.05;
+            }
+        } else if (itemType === 'weapon') {
+            // DEFAULT SWORD - Horizontal slash animation
+            if (p < 0.25) {
+                const t = easeOutQuad(p / 0.25);
+                g.rotation.y = t * 0.6;
+                g.rotation.z = 0.25 + t * 0.4;
+                g.rotation.x = 0.15 - t * 0.3;
+                g.position.x = rp.x + t * 0.15;
+                g.position.z = rp.z + t * 0.05;
+            } else if (p < 0.55) {
+                const t = easeOutBack((p - 0.25) / 0.3);
+                g.rotation.y = 0.6 - t * 1.4;
+                g.rotation.z = 0.65 - t * 0.8;
+                g.rotation.x = -0.15 + t * 0.25;
+                g.position.x = rp.x + 0.15 - t * 0.35;
+                g.position.y = rp.y - t * 0.08;
+                g.position.z = rp.z + 0.05 - t * 0.12;
+            } else {
+                const t = easeOutQuad((p - 0.55) / 0.45);
+                g.rotation.y = -0.8 + t * 0.8;
+                g.rotation.z = -0.15 + t * 0.4;
+                g.rotation.x = 0.1 - t * 0.1;
+                g.position.x = rp.x - 0.20 + t * 0.20;
+                g.position.y = rp.y - 0.08 + t * 0.08;
+                g.position.z = rp.z - 0.07 + t * 0.07;
+            }
+        } else if (itemId === 'pickaxe') {
+            // PICKAXE - Overhead mining swing
+            if (p < 0.35) {
+                const t = easeOutQuad(p / 0.35);
+                g.rotation.x = 0.35 + t * 1.4;
+                g.rotation.z = 0.45 - t * 0.2;
+                g.position.y = rp.y + t * 0.25;
+                g.position.z = rp.z + t * 0.15;
+            } else if (p < 0.6) {
+                const t = easeInQuad((p - 0.35) / 0.25);
+                g.rotation.x = 1.75 - t * 2.0;
+                g.rotation.z = 0.25;
+                g.position.y = rp.y + 0.25 - t * 0.45;
+                g.position.z = rp.z + 0.15 - t * 0.25;
+            } else {
+                const t = easeOutQuad((p - 0.6) / 0.4);
+                const bounce = Math.sin(t * Math.PI * 2) * (1 - t) * 0.15;
+                g.rotation.x = -0.25 + bounce + t * 0.6;
+                g.rotation.z = 0.25 + bounce * 0.5 + t * 0.2;
+                g.position.y = rp.y - 0.20 + bounce * 0.5 + t * 0.20;
+                g.position.z = rp.z - 0.10 + t * 0.10;
+            }
+        } else {
+            // AXE - Side chop animation (default tool)
+            if (p < 0.3) {
+                const t = easeOutQuad(p / 0.3);
+                g.rotation.x = 0.45 - t * 0.3;
+                g.rotation.y = -0.35 - t * 0.5;
+                g.rotation.z = 0.35 + t * 0.4;
+                g.position.x = rp.x + t * 0.12;
+                g.position.y = rp.y + t * 0.10;
+            } else if (p < 0.55) {
+                const t = easeOutBack((p - 0.3) / 0.25);
+                g.rotation.x = 0.15 + t * 0.8;
+                g.rotation.y = -0.85 + t * 1.0;
+                g.rotation.z = 0.75 - t * 0.6;
+                g.position.x = rp.x + 0.12 - t * 0.22;
+                g.position.y = rp.y + 0.10 - t * 0.28;
+                g.position.z = rp.z - t * 0.12;
+            } else {
+                const t = easeOutQuad((p - 0.55) / 0.45);
+                const shake = Math.sin(t * Math.PI * 3) * (1 - t) * 0.08;
+                g.rotation.x = 0.95 - t * 0.50 + shake;
+                g.rotation.y = 0.15 - t * 0.50 + shake;
+                g.rotation.z = 0.15 + t * 0.20;
+                g.position.x = rp.x - 0.10 + t * 0.10;
+                g.position.y = rp.y - 0.18 + t * 0.18;
+                g.position.z = rp.z - 0.12 + t * 0.12;
+            }
+        }
+
+        // Apply damage at the right moment for each weapon (exact from HTML build)
+        const impactTimes = { mace: 0.52, flintlock: 0.48, lance: 0.45, longbow: 0.52, katana: 0.30, staff: 0.50, broadsword: 0.60, dagger: 0.32 };
+        const impactTime = impactTimes[itemId] || (itemType === 'weapon' ? 0.45 : (itemId === 'pickaxe' ? 0.55 : 0.50));
+
+        // Fire projectiles for ranged weapons
+        if (swingProgress >= impactTime && !CombatSystem.projectileFiredThisSwing()) {
+            if (itemId === 'flintlock') {
+                const camDir = new THREE.Vector3();
+                _deps.camera.getWorldDirection(camDir);
+                const startPos = _deps.getPlayer().position.clone();
+                startPos.y += 1.4;
+                startPos.add(camDir.clone().multiplyScalar(0.5));
+                CombatSystem.createProjectile('bullet', startPos, camDir);
+                CombatSystem.markProjectileFired();
+            } else if (itemId === 'longbow') {
+                const camDir = new THREE.Vector3();
+                _deps.camera.getWorldDirection(camDir);
+                const startPos = _deps.getPlayer().position.clone();
+                startPos.y += 1.3;
+                startPos.add(camDir.clone().multiplyScalar(0.3));
+                CombatSystem.createProjectile('arrow', startPos, camDir);
+                CombatSystem.markProjectileFired();
+            }
+        }
+
+        // Melee damage at impact time
+        const targetedResource = CombatSystem.getTargetedResource();
+        if (swingProgress >= impactTime && swingProgress < impactTime + 0.1 && targetedResource && !targetedResource.isDestroyed) {
+            if (itemId !== 'flintlock' && itemId !== 'longbow') {
+                const effectiveness = item ? (item.effectiveness || {}) : {};
+                targetedResource.takeDamage(item ? item.damage : 1, effectiveness[targetedResource.resourceType] || 0.1, _deps.getPlayer().position.clone());
+            }
+        }
+
+        // Swing complete - reset to rest position (exact from HTML build)
+        if (swingProgress >= 1) {
+            CombatSystem.endSwing();
+            g.rotation.copy(_restRotation);
+            g.position.copy(_restPosition);
+        }
+    }
+
     return {
         init(deps) {
             Object.assign(_deps, deps);
@@ -564,12 +915,12 @@ const HeldItemSystem = (function() {
             _heldItemGroup.rotation.copy(_restRotation);
         },
 
-        // Called every frame from animate loop - exact bobbing from HTML build
-        update(delta, time, isSwinging) {
+        // Called every frame from animate loop
+        update(delta, time) {
             if (!_heldItemGroup) return;
+            const { CombatSystem, InventorySystem } = _deps;
 
             // Check for slot change
-            const { InventorySystem } = _deps;
             if (InventorySystem) {
                 const item = InventorySystem.getSelectedItem();
                 const itemId = item ? item.id : 'hand';
@@ -579,8 +930,11 @@ const HeldItemSystem = (function() {
                 }
             }
 
+            // Run swing animation if swinging (exact port from HTML build updateSwing)
+            _updateSwing(delta);
+
             // Idle animation when not swinging (exact port from HTML build)
-            if (!isSwinging) {
+            if (!CombatSystem || !CombatSystem.isSwinging()) {
                 const keys = _deps.getKeys ? _deps.getKeys() : {};
                 const idleBob = Math.sin(time * 2.5) * 0.008;
                 const idleSway = Math.sin(time * 1.8) * 0.012;
