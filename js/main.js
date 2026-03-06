@@ -45,6 +45,7 @@ import { QuestSystem } from './systems/QuestSystem.js';
 import { LoreBookSystem } from './systems/LoreBookSystem.js';
 import { CompassSystem } from './systems/CompassSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
+import { HeldItemSystem } from './systems/HeldItemSystem.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAME STATE
@@ -351,6 +352,14 @@ function initSystems() {
         player,
         camera
     });
+
+    // Initialize held item (first-person weapon/tool)
+    HeldItemSystem.init({
+        camera,
+        InventorySystem,
+        CombatSystem,
+        getPMove: () => pMove
+    });
 }
 
 function initPlayer() {
@@ -406,6 +415,7 @@ function initInput() {
             e.preventDefault();
             UISystem.toggleInventory();
             inventoryOpen = UISystem.isInventoryOpen();
+            HeldItemSystem.setVisible(!inventoryOpen);
             return;
         }
         
@@ -419,7 +429,7 @@ function initInput() {
             }
             if (shopOpen) { ShopSystem.close(); shopOpen = false; return; }
             if (currentDialogue) { DialogueSystem.closeDialogue(); currentDialogue = null; return; }  // Fixed
-            if (inventoryOpen) { UISystem.toggleInventory(); inventoryOpen = false; return; }
+            if (inventoryOpen) { UISystem.toggleInventory(); inventoryOpen = false; HeldItemSystem.setVisible(true); return; }
             if (loreBookOpen) { LoreBookSystem.toggle(); loreBookOpen = false; return; }
             if (typeof window.openPauseMenu === 'function') {
                 window.openPauseMenu();
@@ -589,6 +599,7 @@ function initUI() {
     
     // Initialize HUD
     UISystem.updatePlayerHUD();
+    UISystem.updateHotbarUI();
     
     // Update weather widget
     const wCfg = WeatherSystem.getConfig();
@@ -713,7 +724,10 @@ function animate() {
         
         // Update combat
         CombatSystem.updateProjectiles(delta);  // Fixed: was update(delta, time)
-        
+
+        // Update held item (bobbing, swing animation)
+        HeldItemSystem.update(delta);
+
         // Update quests
         QuestSystem.animateMarkers(time);
         
