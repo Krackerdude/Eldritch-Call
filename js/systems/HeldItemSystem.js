@@ -1,8 +1,10 @@
 // =============================================================================
 // HELDITEMSYSTEM.JS - First-person held item rendering with bobbing/sway
-// Dependencies: THREE (global), camera, InventorySystem, CombatSystem
+// Dependencies: THREE, camera, InventorySystem, CombatSystem
 // Consumers: Main game loop (animate)
 // =============================================================================
+
+import * as THREE from 'three';
 
 let _deps = {
     camera: null,
