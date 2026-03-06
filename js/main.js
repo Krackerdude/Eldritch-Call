@@ -46,6 +46,7 @@ import { LoreBookSystem } from './systems/LoreBookSystem.js';
 import { CompassSystem } from './systems/CompassSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
 import { HeldItemSystem } from './systems/HeldItemSystem.js';
+import { ParticleSystem } from './systems/ParticleSystem.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAME STATE
@@ -277,6 +278,9 @@ function initSystems() {
         DayNightSystem
     });
     
+    // Initialize particle system
+    ParticleSystem.init({ scene });
+
     // Initialize resources
     ResourceSystem.init({
         scene,
@@ -284,7 +288,7 @@ function initSystems() {
         mats,
         CONFIG,
         inventory: InventorySystem,
-        spawnParticles,
+        ParticleSystem,
         showPickupNotification: UISystem.showPickupNotification,
         discoverMaterial: (resourceType, resourceSubType) => {
             const category = resourceType === 'rock' ? 'minerals' : 'flora';
@@ -299,7 +303,8 @@ function initSystems() {
         scene,
         CONFIG,
         getHeight,
-        BiomeSystem
+        BiomeSystem,
+        ParticleSystem
     });
     
     // Initialize combat
@@ -308,7 +313,8 @@ function initSystems() {
         player,
         camera,
         CONFIG,
-        InventorySystem
+        InventorySystem,
+        ParticleSystem
     });
     
     // Initialize inventory
@@ -638,10 +644,7 @@ function handleInteraction() {
 }
 
 function spawnParticles(pos, color, count = 8) {
-    // Particle spawning implementation
-    for (let i = 0; i < count; i++) {
-        // Create particle at position with color
-    }
+    ParticleSystem.spawnSimple(pos, color, count);
 }
 
 function onWindowResize() {
@@ -1025,6 +1028,7 @@ function updateEntities(delta) {
     CreatureSystem.updateAll(delta, time, player.position);  // Fixed: was update
     
     // Update particles
+    ParticleSystem.update(delta);
     for (let i = particles.length - 1; i >= 0; i--) {
         particles[i].update(delta);
     }
