@@ -667,21 +667,41 @@ function calculateEquipmentBonuses() {
 
 function updateHotbarUI() {
     const slots = document.querySelectorAll('.hotbar-slot');
+    // SVG weapon icons matching the HTML build
+    const weaponSvgIcons = {
+        hand: '<svg viewBox="0 0 32 32" width="28" height="28"><path d="M16 4c-2 0-4 1-5 3l-1 4v8l2 5c1 2 2 4 4 4s3-2 4-4l2-5v-8l-1-4c-1-2-3-3-5-3z" fill="#deb887"/><path d="M10 12h2v6h-2zM20 12h2v6h-2z" fill="#d4a574"/></svg>',
+        pickaxe: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="15" y="8" width="3" height="18" fill="#8B5A2B"/><path d="M8 6h16l-2 6H10L8 6z" fill="#708090"/><path d="M6 4l4 2-2 6-4-2 2-6z" fill="#c0c0c0"/></svg>',
+        axe: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="10" width="4" height="16" fill="#8B5A2B"/><path d="M18 4h8v12l-4 4h-4V4z" fill="#708090"/><path d="M24 4l2 2v8l-2 2V4z" fill="#c0c0c0"/></svg>',
+        sword: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="22" width="4" height="8" fill="#8b4513"/><rect x="10" y="20" width="12" height="4" rx="1" fill="#ffd700"/><rect x="15" y="2" width="2" height="20" fill="#c0c0c0"/><path d="M15 2l2 0 0 3-1 1-1-1z" fill="#e0e0e0"/></svg>',
+        mace: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="14" width="4" height="14" fill="#8B5A2B"/><rect x="10" y="4" width="12" height="12" rx="2" fill="#708090"/><circle cx="16" cy="10" r="3" fill="#c0c0c0"/></svg>',
+        flintlock: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="6" y="14" width="18" height="5" rx="1" fill="#4a3520"/><rect x="20" y="12" width="8" height="8" rx="1" fill="#708090"/><path d="M12 19l-2 8h4l-2-8" fill="#4a3520"/></svg>',
+        lance: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="15" y="10" width="2" height="20" fill="#8B5A2B"/><path d="M16 2l4 10h-8z" fill="#c0c0c0"/></svg>',
+        longbow: '<svg viewBox="0 0 32 32" width="28" height="28"><path d="M12 4 Q6 16 12 28" stroke="#8B5A2B" stroke-width="3" fill="none"/><line x1="12" y1="4" x2="12" y2="28" stroke="#a0a0a0" stroke-width="1"/><line x1="12" y1="16" x2="24" y2="16" stroke="#8B5A2B" stroke-width="2"/><path d="M22 12l4 4-4 4" fill="#c0c0c0"/></svg>',
+        katana: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="24" width="4" height="6" fill="#2d1810"/><rect x="12" y="22" width="8" height="3" rx="1" fill="#ffd700"/><path d="M15 2 Q14 12 15 22h2 Q17 12 16 2z" fill="#e0e8f0"/></svg>',
+        staff: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="15" y="8" width="2" height="22" fill="#5a3820"/><circle cx="16" cy="6" r="4" fill="#a855f7"/><circle cx="16" cy="6" r="2" fill="#c084fc"/></svg>',
+        broadsword: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="22" width="4" height="8" fill="#5a3820"/><rect x="8" y="20" width="16" height="3" rx="1" fill="#ffd700"/><path d="M13 2h6l1 18h-8z" fill="#c0c0c0"/></svg>',
+        dagger: '<svg viewBox="0 0 32 32" width="28" height="28"><rect x="14" y="20" width="4" height="8" fill="#5a3820"/><rect x="12" y="18" width="8" height="3" rx="1" fill="#708090"/><path d="M15 6h2l1 12h-4z" fill="#c0c0c0"/></svg>'
+    };
+
     slots.forEach((slot, i) => {
         const item = _deps.hotbarItems[i];
-        const iconEl = slot.querySelector('.slot-icon');
-        const keyEl = slot.querySelector('.slot-key');
-        
+        const iconEl = slot.querySelector('.item-icon');
+        if (!iconEl) return;
+
         if (item) {
-            const weaponIcons = {
-                hand: '✋', pickaxe: '⛏', axe: '🪓', sword: '⚔',
-                mace: '🔨', flintlock: '🔫', lance: '🗡', longbow: '🏹',
-                katana: '⚔', staff: '🪄', broadsword: '⚔', dagger: '🗡'
-            };
-            iconEl.textContent = weaponIcons[item.id] || item.icon || item.name.charAt(0);
+            // Use SVG icon if available, fall back to itemIcons from assets
+            const svgIcon = weaponSvgIcons[item.id];
+            const assetIcon = _deps.itemIcons ? (_deps.itemIcons[item.icon] || _deps.itemIcons[item.id]) : null;
+            if (svgIcon) {
+                iconEl.innerHTML = svgIcon;
+            } else if (assetIcon) {
+                iconEl.innerHTML = assetIcon;
+            } else {
+                iconEl.innerHTML = '';
+            }
             slot.title = item.name + (item.class ? ' (' + item.class + ')' : '');
         } else {
-            iconEl.textContent = '';
+            iconEl.innerHTML = '';
             slot.title = 'Empty slot';
         }
     });

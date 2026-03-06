@@ -398,14 +398,24 @@ function initInput() {
         camera.rotation.x = pitch;
     });
     
+    // Hotbar slot selection with visual highlight
+    function selectSlot(slot) {
+        if (slot < 0 || slot > 8) return;
+        InventorySystem.selectedSlot = slot;
+        document.querySelectorAll('.hotbar-slot').forEach((el, i) => {
+            el.classList.toggle('selected', i === slot);
+        });
+        if (HeldItemSystem.updateHeldItem) HeldItemSystem.updateHeldItem();
+    }
+
     // Scroll wheel for hotbar
     document.addEventListener('wheel', e => {
         if (inventoryOpen) return;
         const s = InventorySystem.selectedSlot;
         if (e.deltaY > 0) {
-            InventorySystem.selectedSlot = (s + 1) % 9;  // Fixed: use setter
+            selectSlot((s + 1) % 9);
         } else {
-            InventorySystem.selectedSlot = (s + 8) % 9;  // Fixed: use setter
+            selectSlot((s + 8) % 9);
         }
     });
     
@@ -454,7 +464,7 @@ function initInput() {
         if (k === 'y') WeatherSystem.cycle();
         if (k === 'e') handleInteraction();
         if (k === 'j') { LoreBookSystem.toggle(); loreBookOpen = LoreBookSystem.isOpen(); }
-        if (k >= '1' && k <= '9') InventorySystem.selectedSlot = parseInt(k) - 1;  // Fixed: use setter
+        if (k >= '1' && k <= '9') selectSlot(parseInt(k) - 1);
     });
     
     // Keyup
@@ -658,6 +668,85 @@ function showMoveFeedback(text, color = '#4ade80') {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN ANIMATION LOOP
 // ═══════════════════════════════════════════════════════════════════════════════
+// HARVESTABLE TARGETING - Port from HTML build
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const _targetVec3 = new THREE.Vector3();
+const _targetQuat = new THREE.Quaternion();
+const _targetDir = new THREE.Vector3();
+const _toResVec = new THREE.Vector3();
+
+function updateTargeting() {
+    const harvestableResources = ResourceSystem.getHarvestableResources();
+    if (!harvestableResources) return;
+
+    let closest = null;
+    let closestDist = CONFIG.interactRange || 5;
+    const camPos = camera.getWorldPosition(_targetVec3);
+    const camDir = _targetDir.set(0, 0, -1).applyQuaternion(camera.getWorldQuaternion(_targetQuat));
+
+    for (const res of harvestableResources) {
+        if (res.isDestroyed) continue;
+        const pos = res.getWorldPos();
+        const dist = pos.distanceTo(player.position);
+        if (dist < closestDist) {
+            _toResVec.copy(pos).sub(camPos).normalize();
+            if (_toResVec.dot(camDir) > 0.9) {
+                closest = res;
+                closestDist = dist;
+            }
+        }
+    }
+
+    // Update CombatSystem's targeted resource
+    if (closest) {
+        CombatSystem.setTargetedResource(closest);
+    } else {
+        CombatSystem.clearTarget();
+    }
+
+    // Update harvest UI
+    const harvestUI = document.getElementById('harvest-ui');
+    if (!harvestUI) return;
+
+    if (closest) {
+        const healthPct = (closest.health / closest.maxHealth) * 100;
+
+        // Update name and type
+        document.getElementById('harvest-name').textContent = CombatSystem.getResourceDisplayName(closest);
+        document.getElementById('harvest-type').textContent = closest.resourceType.toUpperCase();
+
+        // Update health bar
+        document.getElementById('harvest-bar-fill').style.width = healthPct + '%';
+        document.getElementById('harvest-percent').textContent = Math.round(healthPct) + '%';
+
+        // Update icon
+        const iconSvg = document.getElementById('harvest-icon-svg');
+        const harvestIcons = CombatSystem.getHarvestIcons();
+        iconSvg.innerHTML = harvestIcons[closest.resourceType] || harvestIcons.tree;
+
+        // Color the bar based on health
+        const barFill = document.getElementById('harvest-bar-fill');
+        if (healthPct > 66) {
+            barFill.style.background = 'linear-gradient(90deg, #44ff44, #88ff44)';
+            barFill.style.boxShadow = '0 0 15px rgba(68,255,68,0.5)';
+        } else if (healthPct > 33) {
+            barFill.style.background = 'linear-gradient(90deg, #ffaa44, #ffdd44)';
+            barFill.style.boxShadow = '0 0 15px rgba(255,170,68,0.5)';
+        } else {
+            barFill.style.background = 'linear-gradient(90deg, #ff4444, #ff6644)';
+            barFill.style.boxShadow = '0 0 15px rgba(255,68,68,0.5)';
+        }
+
+        harvestUI.classList.remove('hidden');
+        harvestUI.classList.add('visible');
+    } else {
+        harvestUI.classList.remove('visible');
+        harvestUI.classList.add('hidden');
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 
 function animate() {
     requestAnimationFrame(animate);
@@ -724,6 +813,11 @@ function animate() {
         // Update visibility (LOD)
         updateVisibility();
         
+        // Update targeting (every 4th frame, matching HTML build)
+        if (frame % 4 === 0 && !currentInterior && !shopOpen && !currentDialogue) {
+            updateTargeting();
+        }
+
         // Update combat
         CombatSystem.updateProjectiles(delta);  // Fixed: was update(delta, time)
 
@@ -735,8 +829,15 @@ function animate() {
         
         // Update compass
         CompassSystem.updateFromPlayer(player, []);
+    } else {
+        // Hide harvest UI when inventory/shop/dialogue is open
+        const harvestUI = document.getElementById('harvest-ui');
+        if (harvestUI && harvestUI.classList.contains('visible')) {
+            harvestUI.classList.remove('visible');
+            harvestUI.classList.add('hidden');
+        }
     }
-    
+
     // UI updates (time-based)
     if (now - lastTimeUpdate >= 500) {
         lastTimeUpdate = now;
