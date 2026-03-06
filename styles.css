@@ -11,7 +11,7 @@
         }
         
         /* Performance: Contain layout/paint for overlays */
-        .overlay, #inventory-overlay, #shop-overlay, #dialogue-overlay, #lorebook-overlay {
+        .overlay, #inventory-overlay, #shop-overlay, #dialogue-overlay, #lore-book-overlay {
             contain: layout style paint;
         }
         
