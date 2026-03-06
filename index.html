@@ -209,27 +209,69 @@
         <!-- Shop Overlay -->
         <div id="shop-overlay">
             <div id="shop-container">
+                <!-- Player inventory side (left) -->
                 <div id="shop-player-side">
                     <div id="shop-player-header">
-                        <span>Your Items</span>
-                        <div id="shop-player-gold"><span class="gold-icon">💰</span><span id="shop-gold-amount">0</span></div>
+                        <h2>Your Inventory</h2>
+                        <div id="shop-player-gold">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="currentColor">G</text></svg>
+                            <span id="shop-gold-amount">0</span>
+                        </div>
+                    </div>
+                    <!-- Player sort tabs -->
+                    <div class="inv-sort-bar" id="shop-player-sort-bar">
+                        <button class="sort-btn active" data-filter="all">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor"/><rect x="3" y="14" width="7" height="7" fill="currentColor"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>
+                            ALL
+                        </button>
+                        <button class="sort-btn" data-filter="weapon">
+                            <svg viewBox="0 0 24 24"><path d="M14.5 2.5L22 10l-2 2-3-1-4 4 1 3-2 2-7.5-7.5 2-2 3 1 4-4-1-3 2-2z" fill="currentColor"/></svg>
+                            WEAPONS
+                        </button>
+                        <button class="sort-btn" data-filter="resource">
+                            <svg viewBox="0 0 24 24"><polygon points="16,4 26,10 26,22 16,28 6,22 6,10" fill="currentColor"/></svg>
+                            RESOURCES
+                        </button>
+                        <button class="sort-btn" data-filter="tool">
+                            <svg viewBox="0 0 24 24"><path d="M22 2l-5 5-2-2 5-5zM9.5 12.5l-7 7 2.5 2.5 7-7M11 8l5 5-6 6-5-5z" fill="currentColor"/></svg>
+                            TOOLS
+                        </button>
                     </div>
                     <div id="shop-player-inventory"></div>
                 </div>
+                <!-- Trader side (right) -->
                 <div id="shop-trader-side">
                     <div id="shop-trader-header">
-                        <span id="shop-trader-name">Merchant</span>
-                        <button id="shop-close-btn">✕</button>
+                        <h2 id="shop-trader-name">Trader</h2>
+                        <div id="shop-trader-gold">Stock Available</div>
                     </div>
-                    <div id="shop-sort-bar">
-                        <button class="sort-btn active" data-filter="all"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor"/><rect x="3" y="14" width="7" height="7" fill="currentColor"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>All</button>
-                        <button class="sort-btn" data-filter="weapon"><svg viewBox="0 0 24 24"><path d="M14 2l-1 9h-2L10 2h4zM9 13h6l1 2H8l1-2zM11 17h2v5h-2z" fill="currentColor"/></svg>Weapons</button>
-                        <button class="sort-btn" data-filter="armor"><svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5.5 3.4 10.7 8 12 4.6-1.3 8-6.5 8-12V5l-8-3z" fill="currentColor"/><path d="M12 4L6 6.5v5c0 4.3 2.7 8.4 6 9.5V4z" fill="currentColor" opacity="0.7"/></svg>Armor</button>
-                        <button class="sort-btn" data-filter="consumable"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="4" rx="1" fill="currentColor"/><path d="M8 6l-2 16h12l-2-16z" fill="currentColor"/><ellipse cx="12" cy="8" rx="4" ry="1.5" fill="currentColor" opacity="0.5"/></svg>Items</button>
+                    <!-- Trader sort tabs -->
+                    <div class="inv-sort-bar" id="shop-sort-bar">
+                        <button class="sort-btn active" data-filter="all">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" fill="currentColor"/><rect x="14" y="3" width="7" height="7" fill="currentColor"/><rect x="3" y="14" width="7" height="7" fill="currentColor"/><rect x="14" y="14" width="7" height="7" fill="currentColor"/></svg>
+                            ALL
+                        </button>
+                        <button class="sort-btn" data-filter="weapon">
+                            <svg viewBox="0 0 24 24"><path d="M14.5 2.5L22 10l-2 2-3-1-4 4 1 3-2 2-7.5-7.5 2-2 3 1 4-4-1-3 2-2z" fill="currentColor"/></svg>
+                            WEAPONS
+                        </button>
+                        <button class="sort-btn" data-filter="armor">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8 2 4 4 4 4v8c0 6 8 10 8 10s8-4 8-10V4s-4-2-8-2z" fill="currentColor"/></svg>
+                            ARMOR
+                        </button>
+                        <button class="sort-btn" data-filter="consumable">
+                            <svg viewBox="0 0 24 24"><path d="M10 4h4v2h-4zM9 6l-1 12h8l-1-12zM12 9a2 3 0 01 0 6 2 3 0 010-6z" fill="currentColor"/></svg>
+                            CONSUMABLES
+                        </button>
+                        <button class="sort-btn" data-filter="tool">
+                            <svg viewBox="0 0 24 24"><path d="M22 2l-5 5-2-2 5-5zM9.5 12.5l-7 7 2.5 2.5 7-7M11 8l5 5-6 6-5-5z" fill="currentColor"/></svg>
+                            TOOLS
+                        </button>
                     </div>
                     <div id="shop-trader-inventory"></div>
                 </div>
             </div>
+            <button id="shop-close">✕</button>
         </div>
 
         <!-- HUD Elements -->
