@@ -17,7 +17,7 @@ let _deps = {
     CONFIG: { creatureCulling: 150, deerCount: 8, foxCount: 6, sheepCount: 8, rabbitCount: 12 },
     sharedGeom: null,
     inventory: null,
-    spawnParticles: null,
+    ParticleSystem: null,
     updateQuestProgress: null,
     discoverEntry: null,
     showTransaction: null
@@ -229,10 +229,10 @@ class Creature {
     die() {
         this.isAlive = false;
         
-        const { scene, spawnParticles, inventory, updateQuestProgress, discoverEntry, showTransaction } = _deps;
-        
+        const { scene, ParticleSystem, inventory, updateQuestProgress, discoverEntry, showTransaction } = _deps;
+
         // Particles
-        if (spawnParticles) spawnParticles(this.group.position.clone(), 0x8B4513, 15);
+        if (ParticleSystem) ParticleSystem.spawnImpact(this.group.position.clone(), 'creature');
         
         // Drop loot
         const lootTable = ['leather', 'fiber'];

@@ -16,7 +16,7 @@ let _deps = {
     sharedGeom: null,
     mats: null,
     inventory: null,
-    spawnParticles: null,
+    ParticleSystem: null,
     showPickupNotification: null,
     discoverMaterial: null,
     getHeight: null
@@ -843,9 +843,9 @@ class Tree {
         this.health -= amount * (effectiveness || 0.1);
         this.group.position.x += (Math.random() - 0.5) * 0.15;
         
-        if (_deps.spawnParticles) {
+        if (_deps.ParticleSystem) {
             const particlePos = new THREE.Vector3(this.posX, this.group.position.y + 2, this.posZ);
-            _deps.spawnParticles(particlePos, 0x8B4513, 8);
+            _deps.ParticleSystem.spawnImpact(particlePos, this.treeType || 'wood');
         }
         
         if (this.health <= 0) this.destroy();
@@ -855,8 +855,8 @@ class Tree {
         this.isDestroyed = true;
         if (treeGrid) treeGrid.remove(this);
         
-        if (_deps.spawnParticles) {
-            _deps.spawnParticles(this.group.position, 0x228B22, 25);
+        if (_deps.ParticleSystem) {
+            _deps.ParticleSystem.spawnDestruction(this.group.position, 'tree');
         }
         
         const animate = () => {
@@ -1024,10 +1024,9 @@ class Rock {
         const pct = this.health / this.maxHealth;
         this.mainRock.scale.copy(this.originalScale).multiplyScalar(0.6 + pct * 0.4);
         
-        const particleColor = this.rockType === 'crystal' ? 0x9ab8d5 : 0x808080;
-        if (_deps.spawnParticles) {
+        if (_deps.ParticleSystem) {
             const particlePos = new THREE.Vector3(this.posX, this.group.position.y + this.radius * 0.5, this.posZ);
-            _deps.spawnParticles(particlePos, particleColor, 10);
+            _deps.ParticleSystem.spawnImpact(particlePos, this.rockType || 'stone');
         }
         
         if (this.health <= 0) this.destroy();
@@ -1037,8 +1036,8 @@ class Rock {
         this.isDestroyed = true;
         if (rockGrid) rockGrid.remove(this);
         
-        if (_deps.spawnParticles) {
-            _deps.spawnParticles(this.group.position, 0x808080, 30);
+        if (_deps.ParticleSystem) {
+            _deps.ParticleSystem.spawnDestruction(this.group.position, 'rock');
         }
         
         _deps.scene.remove(this.group);

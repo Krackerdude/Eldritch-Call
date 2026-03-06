@@ -16,7 +16,8 @@ let _deps = {
     getHeight: null,
     currentInterior: null,
     createMuzzleFlash: null,
-    createImpactParticles: null
+    createImpactParticles: null,
+    ParticleSystem: null
 };
 
 const CombatSystem = (function() {
@@ -274,54 +275,9 @@ const CombatSystem = (function() {
         },
         
         createImpactParticles(pos, type = 'bullet') {
-            const { scene } = _deps;
-            if (!scene) return;
-            
-            const particleCount = type === 'bullet' ? 12 : 8;
-            const particles = [];
-            
-            for (let i = 0; i < particleCount; i++) {
-                const color = type === 'bullet' ? 0xffcc44 : 0x8a5a30;
-                const size = type === 'bullet' ? 0.04 : 0.06;
-                const particle = new THREE.Mesh(
-                    new THREE.BoxGeometry(size, size, size),
-                    new THREE.MeshBasicMaterial({ color })
-                );
-                particle.position.copy(pos);
-                scene.add(particle);
-                
-                const vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 0.3,
-                    Math.random() * 0.2 + 0.1,
-                    (Math.random() - 0.5) * 0.3
-                );
-                particles.push({ mesh: particle, vel, age: 0 });
+            if (_deps.ParticleSystem) {
+                _deps.ParticleSystem.spawnImpact(pos, type);
             }
-            
-            // Impact flash
-            if (type === 'bullet') {
-                const spark = new THREE.PointLight(0xffaa44, 2, 4);
-                spark.position.copy(pos);
-                scene.add(spark);
-                setTimeout(() => scene.remove(spark), 60);
-            }
-            
-            // Animate particles
-            const particleAnim = setInterval(() => {
-                let allDone = true;
-                particles.forEach(p => {
-                    p.age += 0.05;
-                    if (p.age < 1) {
-                        allDone = false;
-                        p.mesh.position.add(p.vel);
-                        p.vel.y -= 0.015; // gravity
-                        p.mesh.scale.setScalar(1 - p.age);
-                    } else if (p.mesh.parent) {
-                        scene.remove(p.mesh);
-                    }
-                });
-                if (allDone) clearInterval(particleAnim);
-            }, 16);
         },
         
         // === Projectile Update ===
