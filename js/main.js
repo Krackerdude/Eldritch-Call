@@ -359,7 +359,8 @@ function initSystems() {
         InventorySystem,
         CombatSystem,
         getKeys: () => keys,
-        getTime: () => time
+        getTime: () => time,
+        getPlayer: () => player
     });
 }
 
@@ -727,7 +728,7 @@ function animate() {
         CombatSystem.updateProjectiles(delta);  // Fixed: was update(delta, time)
 
         // Update held item (bobbing, swing animation)
-        HeldItemSystem.update(delta, time, CombatSystem.isSwinging());
+        HeldItemSystem.update(delta, time);
 
         // Update quests
         QuestSystem.animateMarkers(time);
