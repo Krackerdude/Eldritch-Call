@@ -1778,11 +1778,37 @@
             border-color: var(--p-gold);
             box-shadow: 0 0 30px rgba(255,215,0,0.4);
         }
-        .dialogue-option.shop-option .option-num { 
-            background: linear-gradient(135deg, var(--p-gold), var(--p-amber)); 
-            color: #000; 
+        .dialogue-option.shop-option .option-num {
+            background: linear-gradient(135deg, var(--p-gold), var(--p-amber));
+            color: #000;
         }
-        
+
+        /* Quest dialogue options */
+        .dialogue-option.quest-available {
+            border-color: rgba(251,191,36,0.6);
+            background: linear-gradient(135deg, rgba(60,50,20,0.6), rgba(40,35,15,0.8));
+        }
+        .dialogue-option.quest-available:hover {
+            border-color: #fbbf24;
+            box-shadow: 0 0 20px rgba(251,191,36,0.4);
+        }
+        .dialogue-option.quest-available .option-num {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+        }
+        .dialogue-option.quest-turnin {
+            border-color: rgba(74,222,128,0.6);
+            background: linear-gradient(135deg, rgba(20,60,30,0.6), rgba(15,50,25,0.8));
+        }
+        .dialogue-option.quest-turnin:hover {
+            border-color: #4ade80;
+            box-shadow: 0 0 20px rgba(74,222,128,0.4);
+        }
+        .dialogue-option.quest-turnin .option-num {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #1a4a2a;
+        }
+
         /* ═══════════════════════════════════════════════════════════════ */
         /* SHOP SYSTEM - Persona 5 Royal Split Screen */
         /* ═══════════════════════════════════════════════════════════════ */

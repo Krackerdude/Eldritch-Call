@@ -12,15 +12,13 @@ let _deps = {
     npcList: [],
     biomeNPCList: [],
     loreBookData: null,
-    inventory: null,
-    playerStats: null,
+    inventory: null,        // InventorySystem — has .gold, .items, .materials, .add(), .addXP()
     NPC_DATA: {},
-    BUILDING_NPCS: {},
+    LoreBookSystem: null,   // For checking isOpen() state
     addThought: null,
     showTransaction: null,
     updateInventoryUI: null,
-    renderQuests: null,
-    loreBookOpen: false
+    renderQuests: null
 };
 
 // Quest type constants
@@ -401,61 +399,78 @@ const QuestSystem = (function() {
         accept(npcKey) {
             const status = _npcQuestStatus.get(npcKey);
             if (!status || !status.quest) return;
-            
-            const { loreBookData, npcList, addThought, showTransaction, renderQuests, loreBookOpen } = _deps;
-            
+
+            const { loreBookData, npcList, addThought, showTransaction, renderQuests, LoreBookSystem } = _deps;
+
+            // Deep copy quest and mark as accepted
             const quest = { ...status.quest, accepted: true };
             if (loreBookData) loreBookData.quests.active.push(quest);
             status.quest.accepted = true;
-            
+
+            // Remove the "!" marker from the NPC
             if (npcList) {
                 const npc = npcList.find(n => n.dataKey === npcKey);
                 if (npc) _removeMarker(npc);
             }
-            
+
             if (addThought) {
                 addThought(`I have accepted the task "${quest.name}" from ${quest.giver}. ${quest.description}`, 'Accepting a new quest');
             }
             if (showTransaction) {
                 showTransaction(`Quest Accepted: ${quest.name}`, 'buy');
             }
-            if (loreBookOpen && renderQuests) renderQuests();
+            // Refresh quest journal if it's currently open
+            if (LoreBookSystem && LoreBookSystem.isOpen && LoreBookSystem.isOpen() && renderQuests) {
+                renderQuests();
+            }
         },
         
         turnIn(npcKey) {
-            const { loreBookData, inventory, playerStats, npcList, showTransaction, addThought, updateInventoryUI, renderQuests, loreBookOpen } = _deps;
-            
+            const { loreBookData, inventory, npcList, showTransaction, addThought, updateInventoryUI, renderQuests, LoreBookSystem } = _deps;
+
             if (!loreBookData) return null;
-            
+
             const questIndex = loreBookData.quests.active.findIndex(q => q.giverKey === npcKey && q.readyToTurnIn);
             if (questIndex === -1) return null;
-            
+
+            // Move quest from active to completed
             const quest = loreBookData.quests.active.splice(questIndex, 1)[0];
             loreBookData.quests.completed.push(quest);
-            
-            // Give rewards
-            if (inventory) inventory.gold += quest.rewards.gold;
-            if (playerStats) playerStats.exp += quest.rewards.exp;
-            
+
+            // Give gold reward
+            if (inventory) {
+                inventory.gold = (inventory.gold || 0) + quest.rewards.gold;
+            }
+
+            // Give XP reward — use addXP if available, else set directly
+            if (inventory && inventory.addXP) {
+                inventory.addXP(quest.rewards.exp);
+            }
+
+            // Give item rewards
             for (const reward of quest.rewards.items) {
-                if (inventory && inventory.items[reward.id]) {
+                if (inventory && inventory.items && inventory.items[reward.id]) {
+                    // Item already exists — bump count
                     inventory.items[reward.id].count += reward.count;
                 } else if (inventory) {
+                    // Try to find full item data from NPC shop inventories
                     const itemData = this.findItemData(reward.id);
                     if (itemData) {
                         inventory.items[reward.id] = { ...itemData, count: reward.count };
-                    } else {
+                    } else if (inventory.add) {
+                        // Fallback to generic add (covers materials/resources)
                         inventory.add(reward.id, reward.count);
                     }
                 }
             }
-            
+
+            // Remove turn-in marker and schedule a new quest for this NPC
             if (npcList) {
                 const npc = npcList.find(n => n.dataKey === npcKey);
                 if (npc) {
                     _removeMarker(npc);
-                    
-                    // Generate new quest after delay
+
+                    // New quest spawns after 60 seconds
                     setTimeout(() => {
                         const npcType = _getNPCType(npc);
                         const newQuest = _generateQuest(npc, npcType);
@@ -468,7 +483,7 @@ const QuestSystem = (function() {
                     }, 60000);
                 }
             }
-            
+
             if (showTransaction) {
                 showTransaction(`Quest Complete! +${quest.rewards.gold}g +${quest.rewards.exp} XP`, 'buy');
             }
@@ -476,22 +491,25 @@ const QuestSystem = (function() {
                 addThought(`"${quest.name}" is complete! ${quest.giver} rewarded me handsomely.`, `Completing ${quest.name}`);
             }
             if (updateInventoryUI) updateInventoryUI();
-            if (loreBookOpen && renderQuests) renderQuests();
-            
+            if (LoreBookSystem && LoreBookSystem.isOpen && LoreBookSystem.isOpen() && renderQuests) {
+                renderQuests();
+            }
+
             return quest;
         },
         
         updateProgress(type, data) {
-            const { loreBookData, npcList, showTransaction, addThought, renderQuests, loreBookOpen } = _deps;
-            
+            const { loreBookData, npcList, showTransaction, addThought, renderQuests, LoreBookSystem } = _deps;
+
             if (!loreBookData) return;
-            
+
             for (const quest of loreBookData.quests.active) {
                 if (quest.readyToTurnIn) continue;
-                
+
                 for (const obj of quest.objectives) {
                     if (obj.complete) continue;
-                    
+
+                    // Match progress type to objective type
                     if (type === 'collect' && obj.type === 'collect') {
                         for (const item of obj.items) {
                             if (data.itemId === item.id) {
@@ -519,9 +537,11 @@ const QuestSystem = (function() {
                         obj.complete = true;
                     }
                 }
-                
+
+                // Check if all objectives are now complete
                 if (quest.objectives.every(o => o.complete)) {
                     quest.readyToTurnIn = true;
+                    // Show green "?" marker above quest giver
                     if (npcList) {
                         const npc = npcList.find(n => n.dataKey === quest.giverKey);
                         if (npc) _createMarker(npc, 'turnin');
@@ -534,8 +554,11 @@ const QuestSystem = (function() {
                     }
                 }
             }
-            
-            if (loreBookOpen && renderQuests) renderQuests();
+
+            // Refresh quest journal if open
+            if (LoreBookSystem && LoreBookSystem.isOpen && LoreBookSystem.isOpen() && renderQuests) {
+                renderQuests();
+            }
         },
         
         // === Dialogue Options ===
@@ -576,10 +599,10 @@ const QuestSystem = (function() {
             }
         },
         
-        // === Utility ===
+        // === Utility: search NPC shop inventories for item data ===
         findItemData(itemId) {
-            const { NPC_DATA, BUILDING_NPCS } = _deps;
-            
+            const { NPC_DATA } = _deps;
+
             if (NPC_DATA) {
                 for (const key in NPC_DATA) {
                     const npcData = NPC_DATA[key];
@@ -589,18 +612,7 @@ const QuestSystem = (function() {
                     }
                 }
             }
-            
-            if (BUILDING_NPCS) {
-                for (const buildingType in BUILDING_NPCS) {
-                    for (const npcData of BUILDING_NPCS[buildingType]) {
-                        if (npcData.shopInventory) {
-                            const item = npcData.shopInventory.find(i => i.id === itemId);
-                            if (item) return { ...item };
-                        }
-                    }
-                }
-            }
-            
+
             return null;
         }
     };
