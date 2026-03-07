@@ -86,10 +86,55 @@
                 <div class="menu-btn-corner menu-btn-corner-br"></div>
                 <span class="menu-btn-text">Options</span>
             </button>
+            <button class="main-menu-btn" id="btn-extras">
+                <div class="menu-btn-bg"></div>
+                <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                <div class="menu-btn-corner menu-btn-corner-br"></div>
+                <div class="menu-btn-glow"></div>
+                <span class="menu-btn-text">Extras!</span>
+            </button>
         </div>
-        
+
         <div id="menu-version">BUILD 0.1.0</div>
         <div id="menu-copyright">© 2026 DreamLands Studio</div>
+
+        <!-- Extras Sub-Menu (fullscreen overlay within main menu) -->
+        <div id="extras-screen" class="hidden">
+            <div id="extras-bg"></div>
+            <div id="extras-header">
+                <h1 id="extras-title">Extras!</h1>
+                <div class="menu-title-ornament"></div>
+                <button class="extras-return-btn" id="btn-extras-return">
+                    <div class="menu-btn-bg"></div>
+                    <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                    <div class="menu-btn-corner menu-btn-corner-br"></div>
+                    <span class="menu-btn-text">Return to Main Menu</span>
+                </button>
+            </div>
+            <div id="extras-tabs-section">
+                <button class="main-menu-btn extras-tab-btn" id="btn-audio-player">
+                    <div class="menu-btn-bg"></div>
+                    <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                    <div class="menu-btn-corner menu-btn-corner-br"></div>
+                    <div class="menu-btn-glow"></div>
+                    <span class="menu-btn-text">Audio Player</span>
+                </button>
+                <button class="main-menu-btn extras-tab-btn" id="btn-model-viewer">
+                    <div class="menu-btn-bg"></div>
+                    <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                    <div class="menu-btn-corner menu-btn-corner-br"></div>
+                    <div class="menu-btn-glow"></div>
+                    <span class="menu-btn-text">Model Viewer</span>
+                </button>
+                <button class="main-menu-btn extras-tab-btn" id="btn-memes">
+                    <div class="menu-btn-bg"></div>
+                    <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                    <div class="menu-btn-corner menu-btn-corner-br"></div>
+                    <div class="menu-btn-glow"></div>
+                    <span class="menu-btn-text">Memes</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
@@ -879,6 +924,27 @@
             const optionsBtn = document.getElementById('btn-options');
             if (optionsBtn) optionsBtn.addEventListener('click', () => {
                 alert('Options menu coming soon!');
+            });
+
+            const extrasBtn = document.getElementById('btn-extras');
+            const extrasScreen = document.getElementById('extras-screen');
+            const extrasReturnBtn = document.getElementById('btn-extras-return');
+
+            if (extrasBtn) extrasBtn.addEventListener('click', () => {
+                extrasScreen.classList.remove('hidden');
+                extrasScreen.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    extrasScreen.style.transition = 'opacity 0.4s ease';
+                    extrasScreen.style.opacity = '1';
+                });
+            });
+
+            if (extrasReturnBtn) extrasReturnBtn.addEventListener('click', () => {
+                extrasScreen.style.transition = 'opacity 0.4s ease';
+                extrasScreen.style.opacity = '0';
+                setTimeout(() => {
+                    extrasScreen.classList.add('hidden');
+                }, 400);
             });
             
             document.addEventListener('keydown', (e) => {
