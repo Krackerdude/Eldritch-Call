@@ -612,67 +612,64 @@ const MODEL_LIBRARY = {
         label: 'Flora',
         items: treeTypes.map((t, i) => ({
             name: t.name.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()),
-            sub: (t.biomes || []).join(', ') || 'Various',
             builder: () => buildTreeModel(i)
         }))
     },
     fauna: {
         label: 'Fauna',
         items: [
-            { name: 'Deer', sub: 'Passive · Speed 2.5', builder: () => buildCreatureModel('deer') },
-            { name: 'Fox', sub: 'Passive · Speed 3', builder: () => buildCreatureModel('fox') },
-            { name: 'Sheep', sub: 'Passive · Speed 1.2', builder: () => buildCreatureModel('sheep') },
-            { name: 'Rabbit', sub: 'Passive · Speed 4', builder: () => buildCreatureModel('rabbit') },
-            { name: 'Butterfly', sub: 'Flying Creature', builder: () => buildCreatureModel('butterfly') },
-            { name: 'Bird', sub: 'Flying Creature', builder: () => buildCreatureModel('bird') },
+            { name: 'Deer', builder: () => buildCreatureModel('deer') },
+            { name: 'Fox', builder: () => buildCreatureModel('fox') },
+            { name: 'Sheep', builder: () => buildCreatureModel('sheep') },
+            { name: 'Rabbit', builder: () => buildCreatureModel('rabbit') },
+            { name: 'Butterfly', builder: () => buildCreatureModel('butterfly') },
+            { name: 'Bird', builder: () => buildCreatureModel('bird') },
         ]
     },
     groundcover: {
         label: 'Groundcover',
         items: [
-            { name: 'Grass Tuft', sub: 'Ground Flora', builder: () => buildGroundcoverModel('grass') },
-            { name: 'Red Flower', sub: 'Ground Flora', builder: () => buildGroundcoverModel('flowerRed') },
-            { name: 'Yellow Flower', sub: 'Ground Flora', builder: () => buildGroundcoverModel('flowerYellow') },
-            { name: 'Purple Flower', sub: 'Ground Flora', builder: () => buildGroundcoverModel('flowerPurple') },
-            { name: 'White Flower', sub: 'Ground Flora', builder: () => buildGroundcoverModel('flowerWhite') },
-            { name: 'Mushroom Cluster', sub: 'Ground Flora', builder: () => buildGroundcoverModel('mushroom') },
-            { name: 'Fern', sub: 'Ground Flora', builder: () => buildGroundcoverModel('fern') },
+            { name: 'Grass Tuft', builder: () => buildGroundcoverModel('grass') },
+            { name: 'Red Flower', builder: () => buildGroundcoverModel('flowerRed') },
+            { name: 'Yellow Flower', builder: () => buildGroundcoverModel('flowerYellow') },
+            { name: 'Purple Flower', builder: () => buildGroundcoverModel('flowerPurple') },
+            { name: 'White Flower', builder: () => buildGroundcoverModel('flowerWhite') },
+            { name: 'Mushroom Cluster', builder: () => buildGroundcoverModel('mushroom') },
+            { name: 'Fern', builder: () => buildGroundcoverModel('fern') },
         ]
     },
     rocks: {
         label: 'Rocks',
         items: rockTypes.map((t, i) => ({
             name: t.name.charAt(0).toUpperCase() + t.name.slice(1),
-            sub: `Geometry: ${t.geom}`,
             builder: () => buildRockModel(i)
         }))
     },
     npcs: {
         label: 'NPCs',
         items: [
-            { name: 'Eldric the Wanderer', sub: 'Traveling Sage', builder: () => buildNPCModel('wanderer') },
-            { name: 'Mira Thornweave', sub: 'Master Herbalist', builder: () => buildNPCModel('herbalist') },
-            { name: 'Grimjaw Ironhand', sub: 'Master Weaponsmith', builder: () => buildNPCModel('weaponsmith') },
-            { name: 'Helena Steelweave', sub: 'Master Armorsmith', builder: () => buildNPCModel('armorsmith') },
-            { name: 'Professor Aldwin Quill', sub: 'Arcane Scholar', builder: () => buildNPCModel('scholar') },
+            { name: 'Eldric the Wanderer', builder: () => buildNPCModel('wanderer') },
+            { name: 'Mira Thornweave', builder: () => buildNPCModel('herbalist') },
+            { name: 'Grimjaw Ironhand', builder: () => buildNPCModel('weaponsmith') },
+            { name: 'Helena Steelweave', builder: () => buildNPCModel('armorsmith') },
+            { name: 'Professor Aldwin Quill', builder: () => buildNPCModel('scholar') },
         ]
     },
     buildings: {
         label: 'Buildings',
         items: Object.entries(BUILDING_TYPES).map(([key, cfg]) => ({
             name: cfg.name,
-            sub: `${cfg.width}x${cfg.depth}x${cfg.height}`,
             builder: () => buildBuildingModel(key)
         }))
     },
     tools: {
         label: 'Tools & Weapons',
         items: [
-            { name: 'Hand / Fist', sub: 'Base · 5 Damage', builder: createHand },
-            { name: 'Sword', sub: 'Melee · 15 Damage', builder: createSword },
-            { name: 'Iron Axe', sub: 'Tool · 25 Damage', builder: createAxe },
-            { name: 'Iron Pickaxe', sub: 'Tool · 20 Damage', builder: createPickaxe },
-            { name: 'Torch', sub: 'Light Source', builder: createTorch },
+            { name: 'Hand / Fist', builder: createHand },
+            { name: 'Sword', builder: createSword },
+            { name: 'Iron Axe', builder: createAxe },
+            { name: 'Iron Pickaxe', builder: createPickaxe },
+            { name: 'Torch', builder: createTorch },
         ]
     }
 };
@@ -749,7 +746,7 @@ function mvBuildList(category) {
     cat.items.forEach((item, idx) => {
         const el = document.createElement('div');
         el.className = 'mv-list-item';
-        el.innerHTML = `<span class="mv-item-name">${item.name}</span><span class="mv-item-sub">${item.sub}</span>`;
+        el.innerHTML = `<span class="mv-item-title">${item.name}</span>`;
         el.addEventListener('click', () => mvLoadModel(category, idx));
         mvListScroll.appendChild(el);
     });
@@ -786,7 +783,7 @@ function mvLoadModel(category, index) {
     }
 
     mvInfoName.textContent = item.name;
-    mvInfoSub.textContent = item.sub;
+    if (mvInfoSub) mvInfoSub.textContent = '';
     mvNoModel.classList.add('hidden');
     mvControlsHint.textContent = 'Drag to rotate · Scroll to zoom';
 }
