@@ -134,6 +134,49 @@
                     <span class="menu-btn-text">Memes</span>
                 </button>
             </div>
+
+            <!-- Memes Video Player Screen -->
+            <div id="memes-screen" class="hidden">
+                <div id="memes-header">
+                    <h2 id="memes-title">Memes</h2>
+                    <div class="menu-title-ornament"></div>
+                    <button class="extras-return-btn" id="btn-memes-back">
+                        <div class="menu-btn-bg"></div>
+                        <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                        <div class="menu-btn-corner menu-btn-corner-br"></div>
+                        <span class="menu-btn-text">Back</span>
+                    </button>
+                </div>
+                <div id="memes-content">
+                    <div id="memes-player-wrapper">
+                        <div id="memes-player-frame">
+                            <video id="memes-video" controls></video>
+                            <div id="memes-player-overlay">
+                                <div id="memes-player-no-video">
+                                    <svg viewBox="0 0 80 80" width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#d4a84b" stroke-width="2" opacity="0.4"/>
+                                        <polygon points="32,24 60,40 32,56" fill="none" stroke="#d4a84b" stroke-width="2" opacity="0.6"/>
+                                    </svg>
+                                    <p>Select a video to play</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="memes-now-playing">
+                            <span id="memes-now-playing-label">Now Playing:</span>
+                            <span id="memes-now-playing-title">---</span>
+                        </div>
+                    </div>
+                    <div id="memes-playlist">
+                        <div id="memes-playlist-header">
+                            <span id="memes-playlist-title">Playlist</span>
+                            <span id="memes-playlist-count"></span>
+                        </div>
+                        <div id="memes-playlist-scroll">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -940,13 +983,130 @@
             });
 
             if (extrasReturnBtn) extrasReturnBtn.addEventListener('click', () => {
+                // Stop memes video if playing
+                const mv = document.getElementById('memes-video');
+                if (mv) { mv.pause(); mv.src = ''; }
+                const ms = document.getElementById('memes-screen');
+                if (ms) ms.classList.add('hidden');
+
                 extrasScreen.style.transition = 'opacity 0.4s ease';
                 extrasScreen.style.opacity = '0';
                 setTimeout(() => {
                     extrasScreen.classList.add('hidden');
                 }, 400);
             });
-            
+
+            // ─── Memes Video Player ────────────────────────────────────
+            const MEME_VIDEOS = [
+                'Aaron_Im_Geeked',
+                'Cant_Outrun_The_belly',
+                'FNRK',
+                'I_Got_My_WHAT_In_My_Hand_Right_Now',
+                'Im_Feeling_Gassy',
+                'In_My_Fucking_Piss_Bro',
+                'Microwaved_Chuzz',
+                'Obman_Now',
+                'Poor_Mother_Saves_Kids',
+                'Sharktank_Incident',
+                'Spicy_Lava_Burp',
+                'Stinkin_Time',
+                "That_Boy_Said_I'm_Changing",
+                'Toes_Intwinned',
+                'Tornado_Behind_Me',
+                'What_Happens_When_You_Play_This_Game_For_Days_On_End'
+            ];
+
+            const memesScreen = document.getElementById('memes-screen');
+            const memesVideo = document.getElementById('memes-video');
+            const memesOverlay = document.getElementById('memes-player-overlay');
+            const memesNowPlaying = document.getElementById('memes-now-playing-title');
+            const memesPlaylistScroll = document.getElementById('memes-playlist-scroll');
+            const memesPlaylistCount = document.getElementById('memes-playlist-count');
+            const btnMemes = document.getElementById('btn-memes');
+            const btnMemesBack = document.getElementById('btn-memes-back');
+            let currentMemeIndex = -1;
+
+            function formatVideoName(filename) {
+                return filename.replace(/_/g, ' ');
+            }
+
+            function buildMemesPlaylist() {
+                memesPlaylistScroll.innerHTML = '';
+                memesPlaylistCount.textContent = MEME_VIDEOS.length + ' videos';
+
+                MEME_VIDEOS.forEach((name, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'memes-playlist-item';
+                    item.dataset.index = i;
+                    item.innerHTML = `
+                        <span class="memes-item-index">${i + 1}</span>
+                        <div class="memes-item-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="8,5 20,12 8,19" fill="currentColor" stroke="none" opacity="0.7"/>
+                            </svg>
+                        </div>
+                        <span class="memes-item-title">${formatVideoName(name)}</span>
+                    `;
+                    item.addEventListener('click', () => playMeme(i));
+                    memesPlaylistScroll.appendChild(item);
+                });
+            }
+
+            function playMeme(index) {
+                if (index < 0 || index >= MEME_VIDEOS.length) return;
+                currentMemeIndex = index;
+                const name = MEME_VIDEOS[index];
+                const path = 'Video_Source/Extras_Menu_Stuff/' + encodeURIComponent(name) + '.mp4';
+
+                memesVideo.src = path;
+                memesVideo.play().catch(() => {});
+                memesOverlay.classList.add('hidden');
+                memesNowPlaying.textContent = formatVideoName(name);
+
+                // Update active state in playlist
+                memesPlaylistScroll.querySelectorAll('.memes-playlist-item').forEach((el, i) => {
+                    el.classList.toggle('active', i === index);
+                });
+
+                // Scroll active item into view
+                const activeEl = memesPlaylistScroll.querySelector('.memes-playlist-item.active');
+                if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+
+            // Auto-play next when current video ends
+            if (memesVideo) {
+                memesVideo.addEventListener('ended', () => {
+                    if (currentMemeIndex < MEME_VIDEOS.length - 1) {
+                        playMeme(currentMemeIndex + 1);
+                    }
+                });
+            }
+
+            // Open Memes screen
+            if (btnMemes) btnMemes.addEventListener('click', () => {
+                buildMemesPlaylist();
+                memesScreen.classList.remove('hidden');
+                memesScreen.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    memesScreen.style.transition = 'opacity 0.3s ease';
+                    memesScreen.style.opacity = '1';
+                });
+            });
+
+            // Back from Memes to Extras
+            if (btnMemesBack) btnMemesBack.addEventListener('click', () => {
+                memesVideo.pause();
+                memesVideo.src = '';
+                memesOverlay.classList.remove('hidden');
+                memesNowPlaying.textContent = '---';
+                currentMemeIndex = -1;
+                memesScreen.style.transition = 'opacity 0.3s ease';
+                memesScreen.style.opacity = '0';
+                setTimeout(() => {
+                    memesScreen.classList.add('hidden');
+                }, 300);
+            });
+
             document.addEventListener('keydown', (e) => {
                 if (gameStarted) return;
                 

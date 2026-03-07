@@ -652,6 +652,300 @@
             height: 62px;
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           MEMES VIDEO PLAYER
+           ═══════════════════════════════════════════════════════════════ */
+        #memes-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 10060;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: linear-gradient(180deg,
+                rgba(8, 4, 16, 0.99) 0%,
+                rgba(16, 8, 32, 0.98) 40%,
+                rgba(10, 5, 22, 0.99) 100%
+            );
+        }
+
+        #memes-screen.hidden {
+            display: none;
+        }
+
+        #memes-header {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 24px 0 16px;
+            flex-shrink: 0;
+        }
+
+        #memes-title {
+            font-family: 'Cinzel Decorative', 'Cinzel', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--sigil-gold);
+            text-shadow:
+                0 0 16px rgba(212, 168, 75, 0.5),
+                0 0 32px rgba(212, 168, 75, 0.2);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            margin: 0 0 6px;
+        }
+
+        #memes-header .menu-title-ornament {
+            margin-bottom: 0;
+        }
+
+        #memes-header .extras-return-btn {
+            width: 160px;
+        }
+
+        /* Main content area: video left, playlist right */
+        #memes-content {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            padding: 10px 30px 30px;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+
+        /* ─── Video Player ──────────────────────────────────────────── */
+        #memes-player-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        #memes-player-frame {
+            flex: 1;
+            position: relative;
+            background: #050208;
+            border: 2px solid rgba(212, 168, 75, 0.25);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow:
+                0 0 20px rgba(107, 45, 158, 0.15),
+                inset 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #memes-video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+            background: #050208;
+        }
+
+        #memes-player-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        #memes-player-overlay.hidden {
+            display: none;
+        }
+
+        #memes-player-no-video {
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        #memes-player-no-video p {
+            font-family: 'Cinzel', serif;
+            color: #d4c4a8;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-top: 16px;
+        }
+
+        #memes-now-playing {
+            flex-shrink: 0;
+            padding: 10px 16px;
+            background: linear-gradient(135deg,
+                rgba(20, 10, 38, 0.9) 0%,
+                rgba(30, 15, 55, 0.85) 100%
+            );
+            border: 1px solid rgba(212, 168, 75, 0.15);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        #memes-now-playing-label {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(212, 168, 75, 0.6);
+            margin-right: 10px;
+        }
+
+        #memes-now-playing-title {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            letter-spacing: 1px;
+            color: var(--sigil-gold);
+            text-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+        }
+
+        /* ─── Playlist Sidebar ──────────────────────────────────────── */
+        #memes-playlist {
+            width: 320px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg,
+                rgba(16, 8, 30, 0.95) 0%,
+                rgba(12, 6, 24, 0.98) 100%
+            );
+            border: 1px solid rgba(212, 168, 75, 0.2);
+            border-radius: 4px;
+            box-shadow:
+                0 0 16px rgba(107, 45, 158, 0.1),
+                inset 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #memes-playlist-header {
+            flex-shrink: 0;
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(212, 168, 75, 0.15);
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        #memes-playlist-title {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--sigil-gold);
+        }
+
+        #memes-playlist-count {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: rgba(212, 168, 75, 0.4);
+        }
+
+        #memes-playlist-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+
+        #memes-playlist-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #memes-playlist-scroll::-webkit-scrollbar-track {
+            background: rgba(10, 5, 20, 0.5);
+        }
+
+        #memes-playlist-scroll::-webkit-scrollbar-thumb {
+            background: rgba(212, 168, 75, 0.25);
+            border-radius: 3px;
+        }
+
+        #memes-playlist-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 168, 75, 0.45);
+        }
+
+        /* Playlist items */
+        .memes-playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            position: relative;
+        }
+
+        .memes-playlist-item:hover {
+            background: rgba(107, 45, 158, 0.12);
+            border-left-color: rgba(155, 114, 207, 0.4);
+        }
+
+        .memes-playlist-item.active {
+            background: linear-gradient(90deg,
+                rgba(107, 45, 158, 0.2) 0%,
+                rgba(107, 45, 158, 0.05) 100%
+            );
+            border-left-color: var(--sigil-gold);
+        }
+
+        .memes-playlist-item.active .memes-item-title {
+            color: var(--sigil-gold);
+            text-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+        }
+
+        .memes-item-index {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            color: rgba(155, 114, 207, 0.4);
+            min-width: 22px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .memes-playlist-item.active .memes-item-index {
+            color: var(--sigil-gold);
+        }
+
+        .memes-item-icon {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            background: rgba(107, 45, 158, 0.15);
+            border: 1px solid rgba(155, 114, 207, 0.2);
+        }
+
+        .memes-item-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .memes-playlist-item.active .memes-item-icon {
+            background: rgba(212, 168, 75, 0.15);
+            border-color: rgba(212, 168, 75, 0.35);
+        }
+
+        .memes-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            color: #c4b4a0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s ease;
+        }
+
+        .memes-playlist-item:hover .memes-item-title {
+            color: #e8d8c0;
+        }
+
+        /* Divider between items */
+        .memes-playlist-item + .memes-playlist-item {
+            border-top: 1px solid rgba(212, 168, 75, 0.06);
+        }
+
         /* Loading Screen */
         #loading-screen {
             position: fixed;
