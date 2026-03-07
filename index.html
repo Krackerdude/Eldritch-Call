@@ -210,11 +210,10 @@
                         <button class="mv-cat-tab active" data-category="flora">Flora</button>
                         <button class="mv-cat-tab" data-category="fauna">Fauna</button>
                         <button class="mv-cat-tab" data-category="groundcover">Groundcover</button>
+                        <button class="mv-cat-tab" data-category="rocks">Rocks</button>
                         <button class="mv-cat-tab" data-category="npcs">NPCs</button>
                         <button class="mv-cat-tab" data-category="buildings">Buildings</button>
-                        <button class="mv-cat-tab" data-category="items">Items</button>
-                        <button class="mv-cat-tab" data-category="weapons">Weapons</button>
-                        <button class="mv-cat-tab" data-category="tools">Tools</button>
+                        <button class="mv-cat-tab" data-category="tools">Tools & Weapons</button>
                     </div>
                     <button class="extras-return-btn" id="btn-model-back">
                         <div class="menu-btn-bg"></div>
@@ -919,9 +918,6 @@
         </div>
 
     </div><!-- End game-container -->
-
-    <!-- Three.js (global build for Model Viewer) -->
-    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 
     <!-- Import Map for ES Modules -->
     <script type="importmap">
@@ -1790,6 +1786,6 @@
     </script>
 
     <!-- Model Viewer -->
-    <script src="model-viewer.js"></script>
+    <script type="module" src="model-viewer.js"></script>
 </body>
 </html>
