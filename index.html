@@ -135,6 +135,74 @@
                 </button>
             </div>
 
+            <!-- Audio Player Screen -->
+            <div id="audio-player-screen" class="hidden">
+                <div id="ap-top-bar">
+                    <div id="ap-category-tabs">
+                        <button class="ap-cat-tab active" data-category="ambience">Ambience</button>
+                        <button class="ap-cat-tab" data-category="songs">Songs</button>
+                        <button class="ap-cat-tab" data-category="sfx">Sound Effects</button>
+                    </div>
+                    <button class="extras-return-btn" id="btn-audio-back">
+                        <div class="menu-btn-bg"></div>
+                        <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                        <div class="menu-btn-corner menu-btn-corner-br"></div>
+                        <span class="menu-btn-text">Back</span>
+                    </button>
+                </div>
+                <div id="ap-content">
+                    <div id="ap-playlist-panel">
+                        <div id="ap-playlist-header">
+                            <span id="ap-playlist-title">Sound Library</span>
+                            <span id="ap-playlist-count"></span>
+                        </div>
+                        <div id="ap-playlist-scroll">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div id="ap-visualizer-wrapper">
+                        <div id="ap-visualizer-frame">
+                            <canvas id="ap-visualizer-canvas"></canvas>
+                            <div id="ap-visualizer-overlay">
+                                <div id="ap-no-audio">
+                                    <svg viewBox="0 0 80 80" width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#d4a84b" stroke-width="2" opacity="0.4"/>
+                                        <rect x="28" y="24" width="6" height="32" rx="2" fill="none" stroke="#d4a84b" stroke-width="1.5" opacity="0.5"/>
+                                        <rect x="37" y="18" width="6" height="44" rx="2" fill="none" stroke="#d4a84b" stroke-width="1.5" opacity="0.5"/>
+                                        <rect x="46" y="28" width="6" height="24" rx="2" fill="none" stroke="#d4a84b" stroke-width="1.5" opacity="0.5"/>
+                                    </svg>
+                                    <p>Select a track to play</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="ap-now-playing">
+                            <div id="ap-now-playing-left">
+                                <div id="ap-cd-spinner">
+                                    <svg viewBox="0 0 48 48" width="48" height="48">
+                                        <circle cx="24" cy="24" r="22" fill="#1a0e2e" stroke="#d4a84b" stroke-width="1.5"/>
+                                        <circle cx="24" cy="24" r="16" fill="none" stroke="rgba(155,114,207,0.3)" stroke-width="0.5"/>
+                                        <circle cx="24" cy="24" r="10" fill="none" stroke="rgba(155,114,207,0.2)" stroke-width="0.5"/>
+                                        <circle cx="24" cy="24" r="5" fill="#0a0518" stroke="#d4a84b" stroke-width="1"/>
+                                        <circle cx="24" cy="24" r="2" fill="#d4a84b"/>
+                                        <!-- Grooves -->
+                                        <circle cx="24" cy="24" r="19" fill="none" stroke="rgba(212,168,75,0.15)" stroke-width="0.3" stroke-dasharray="2 3"/>
+                                        <circle cx="24" cy="24" r="14" fill="none" stroke="rgba(212,168,75,0.1)" stroke-width="0.3" stroke-dasharray="1.5 2.5"/>
+                                        <!-- Shine -->
+                                        <path d="M24 2 A22 22 0 0 1 46 24" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="4"/>
+                                    </svg>
+                                </div>
+                                <div id="ap-now-playing-info">
+                                    <span id="ap-now-playing-label">Now Playing:</span>
+                                    <span id="ap-now-playing-title">---</span>
+                                    <span id="ap-now-playing-sub"></span>
+                                </div>
+                            </div>
+                            <audio id="ap-audio" controls></audio>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Memes Video Player Screen -->
             <div id="memes-screen" class="hidden">
                 <div id="memes-header">
@@ -1107,9 +1175,429 @@
                 }, 300);
             });
 
+            // ─── Audio Player ──────────────────────────────────────────
+            const AUDIO_LIBRARY = {
+                ambience: {
+                    label: 'Ambience',
+                    subcategories: {
+                        'Biome Ambience': [
+                            { name: 'Ancient Woodlands Ambience', file: 'Audio_Source/Ambience/Ancient_Woodlands_ambience.mp3' },
+                            { name: 'Crimson Desert Ambience', file: 'Audio_Source/Ambience/Crimson_Desert_ambience.mp3' },
+                            { name: 'Crystal Heights Ambience', file: 'Audio_Source/Ambience/Crystal_Heights_ambience.mp3' },
+                            { name: 'Frozen Peaks Ambience', file: 'Audio_Source/Ambience/Frozen_Peaks_ambience.mp3' },
+                            { name: 'Murkey Swamp Ambience', file: 'Audio_Source/Ambience/Murkey_Swamp_ambience.mp3' },
+                            { name: 'Rolling Meadows Ambience', file: 'Audio_Source/Ambience/Rolling_Meadows_ambience.mp3' },
+                            { name: 'Shadow Vale Ambience', file: 'Audio_Source/Ambience/Shadow_Vale_ambience.mp3' }
+                        ]
+                    }
+                },
+                songs: {
+                    label: 'Songs',
+                    subcategories: {
+                        'Biome Themes': [
+                            { name: 'Ancient Woodlands', file: 'Audio_Source/Songs/Biome_Themes/Ancient_Woodlands.mp3' },
+                            { name: 'Crimson Desert', file: 'Audio_Source/Songs/Biome_Themes/Crimson_Desert.mp3' },
+                            { name: 'Crystal Heights', file: 'Audio_Source/Songs/Biome_Themes/Crystal_Heights.mp3' },
+                            { name: 'Frozen Peaks', file: 'Audio_Source/Songs/Biome_Themes/Frozen_Peaks.mp3' },
+                            { name: 'Murky Swamp', file: 'Audio_Source/Songs/Biome_Themes/Murky_Swamp.mp3' },
+                            { name: 'Rolling Meadows', file: 'Audio_Source/Songs/Biome_Themes/Rolling_Meadows.mp3' },
+                            { name: 'Shadow Vale', file: 'Audio_Source/Songs/Biome_Themes/Shadow_Vale.mp3' }
+                        ],
+                        'Battle Themes': [
+                            { name: 'Day Time Battle', file: 'Audio_Source/Songs/Battle_Themes/Day_Time_Battle.mp3' },
+                            { name: 'Night Time Battle', file: 'Audio_Source/Songs/Battle_Themes/Night_Time_Battle.mp3' }
+                        ],
+                        'Boss Themes': [
+                            { name: 'Ancient Woodlands Boss', file: 'Audio_Source/Songs/Boss_Themes/Ancient_Woodlands_Boss.mp3' },
+                            { name: 'Crystal Heights Boss', file: 'Audio_Source/Songs/Boss_Themes/Crystal_Heights_Boss.mp3' },
+                            { name: 'Desert Boss', file: 'Audio_Source/Songs/Boss_Themes/Desert_Boss.mp3' },
+                            { name: 'Frozen Peaks Boss', file: 'Audio_Source/Songs/Boss_Themes/Frozen_Peaks_Boss.mp3' },
+                            { name: 'Meadows Boss', file: 'Audio_Source/Songs/Boss_Themes/Meadows_Boss.mp3' },
+                            { name: 'Murky Swamp Boss', file: 'Audio_Source/Songs/Boss_Themes/Murky_Swamp_Boss.mp3' },
+                            { name: 'Shadow Vale Boss', file: 'Audio_Source/Songs/Boss_Themes/Shadow_Vale_Boss.mp3' }
+                        ],
+                        'Menu Themes': [
+                            { name: 'Extras Menu Theme', file: 'Audio_Source/Songs/Menu_Themes/Extras_Menu_Theme.mp3' },
+                            { name: 'Main Menu', file: 'Audio_Source/Songs/Menu_Themes/Main_Menu.mp3' },
+                            { name: 'Pause Theme', file: 'Audio_Source/Songs/Menu_Themes/Pause_Theme.mp3' }
+                        ]
+                    }
+                },
+                sfx: {
+                    label: 'Sound Effects',
+                    subcategories: {
+                        'Footsteps': [
+                            { name: 'Grass Foot Step', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Foot_Steps/Grass_Foot_Step.mp3' },
+                            { name: 'Sand Foot Step', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Foot_Steps/Sand_Foot_Step.mp3' },
+                            { name: 'Snow Foot Step', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Foot_Steps/Snow_Foot_Step.mp3' }
+                        ],
+                        'Menu Sounds': [
+                            { name: 'Button Hover', file: 'Audio_Source/Sound_Effects/Menu_Interaction/General_Menus/Button_Hover.mp3' },
+                            { name: 'Button Press', file: 'Audio_Source/Sound_Effects/Menu_Interaction/General_Menus/Button_Press.mp3' },
+                            { name: 'Lore Book Notification', file: 'Audio_Source/Sound_Effects/Menu_Interaction/LoreBook/Lore_Book_Notification.mp3' },
+                            { name: 'Quest Accepted', file: 'Audio_Source/Sound_Effects/Menu_Interaction/Quests/Quest_Accepted.mp3' },
+                            { name: 'Quest Complete', file: 'Audio_Source/Sound_Effects/Menu_Interaction/Quests/Quest_Complete.mp3' },
+                            { name: 'Quest Turn In', file: 'Audio_Source/Sound_Effects/Menu_Interaction/Quests/Quest_Turn_In.mp3' }
+                        ],
+                        'NPC Talking Fonts': [
+                            { name: 'Ancient Woodlands NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Ancient_Woodlands_Npc_Talking_font.mp3' },
+                            { name: 'Crimson Desert NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Crimson_Desert_Talking_Font.mp3' },
+                            { name: 'Crystal Heights NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Crystal_Heights_Npc_Talking_Font.mp3' },
+                            { name: 'Frozen Peaks NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Frozen_Peaks_Npc_Talking_Font.mp3' },
+                            { name: 'Murky Swamp NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Murky_Swamp_Npc_Talking_Font.mp3' },
+                            { name: 'Rolling Meadows NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Rolling_Meadows_Npc_Talking_Font.mp3' },
+                            { name: 'Shadow Vale NPC', file: 'Audio_Source/Sound_Effects/Npc_Talking_Fonts/Shadow_Vale_Talking_Font.mp3' }
+                        ],
+                        'Player Actions': [
+                            { name: 'Player Drinking', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Actions/Player_Drinking.mp3' },
+                            { name: 'Player Eating', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Actions/Player_Eating.mp3' },
+                            { name: 'Player Healed', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Actions/Player_Healed.mp3' },
+                            { name: 'Player Hurt', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Actions/Player_Hurt.mp3' }
+                        ],
+                        'Player Movement': [
+                            { name: 'Jump Land', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Movement/Jump_Land.mp3' },
+                            { name: 'Jump Start', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Movement/Jump_Start.mp3' },
+                            { name: 'Player Slide', file: 'Audio_Source/Sound_Effects/Player_Sound_Effects/Player_Movement/Player_Slide.mp3' }
+                        ],
+                        'Tool Sounds': [
+                            { name: 'Arrow Flying', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/Arrow_Flying.mp3' },
+                            { name: 'Blade Swing', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/Blade_Swing.mp3' },
+                            { name: 'Bullet Weapon Reload', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/Bullet_Weapon_Reload.mp3' },
+                            { name: 'Bullet Weapon Shot', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/Bullet_Weapon_Shot.mp3' },
+                            { name: 'String Weapon Load', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/String_Weapon_Load.mp3' },
+                            { name: 'String Weapon Shot', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/String_Weapon_Shot.mp3' },
+                            { name: 'Tool Swing', file: 'Audio_Source/Sound_Effects/Tool_Sound_Effects/Tool_Swing.mp3' }
+                        ]
+                    }
+                }
+            };
+
+            const apScreen = document.getElementById('audio-player-screen');
+            const apAudio = document.getElementById('ap-audio');
+            const apCanvas = document.getElementById('ap-visualizer-canvas');
+            const apOverlay = document.getElementById('ap-visualizer-overlay');
+            const apNowTitle = document.getElementById('ap-now-playing-title');
+            const apNowSub = document.getElementById('ap-now-playing-sub');
+            const apCdSpinner = document.getElementById('ap-cd-spinner');
+            const apPlaylistScroll = document.getElementById('ap-playlist-scroll');
+            const apPlaylistCount = document.getElementById('ap-playlist-count');
+            const btnAudioPlayer = document.getElementById('btn-audio-player');
+            const btnAudioBack = document.getElementById('btn-audio-back');
+            const apCatTabs = document.querySelectorAll('.ap-cat-tab');
+
+            let apCurrentCategory = 'ambience';
+            let apCurrentTrackFile = null;
+            let apFlatList = []; // flat list of current category tracks
+            let apAudioCtx = null;
+            let apAnalyser = null;
+            let apSource = null;
+            let apAnimId = null;
+
+            function apBuildPlaylist(category) {
+                apPlaylistScroll.innerHTML = '';
+                apFlatList = [];
+                const cat = AUDIO_LIBRARY[category];
+                if (!cat) return;
+
+                let globalIdx = 0;
+                const subcatKeys = Object.keys(cat.subcategories).sort();
+
+                subcatKeys.forEach(subName => {
+                    const tracks = cat.subcategories[subName].slice().sort((a, b) => a.name.localeCompare(b.name));
+
+                    // Sub-category header
+                    const header = document.createElement('div');
+                    header.className = 'ap-subcat-header';
+                    header.textContent = subName;
+                    apPlaylistScroll.appendChild(header);
+
+                    tracks.forEach(track => {
+                        const idx = globalIdx++;
+                        apFlatList.push(track);
+
+                        const item = document.createElement('div');
+                        item.className = 'ap-playlist-item';
+                        item.dataset.index = idx;
+                        if (track.file === apCurrentTrackFile) item.classList.add('active');
+                        item.innerHTML = `
+                            <span class="ap-item-index">${idx + 1}</span>
+                            <div class="ap-item-icon">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <polygon points="8,5 20,12 8,19" opacity="0.7"/>
+                                </svg>
+                            </div>
+                            <span class="ap-item-title">${track.name}</span>
+                        `;
+                        item.addEventListener('click', () => apPlayTrack(idx));
+                        apPlaylistScroll.appendChild(item);
+                    });
+                });
+
+                apPlaylistCount.textContent = apFlatList.length + ' tracks';
+            }
+
+            function apPlayTrack(index) {
+                if (index < 0 || index >= apFlatList.length) return;
+                const track = apFlatList[index];
+                apCurrentTrackFile = track.file;
+
+                apAudio.src = track.file;
+                apAudio.play().catch(() => {});
+                apOverlay.classList.add('hidden');
+                apNowTitle.textContent = track.name;
+
+                // Find which subcategory this track belongs to
+                const cat = AUDIO_LIBRARY[apCurrentCategory];
+                for (const subName of Object.keys(cat.subcategories)) {
+                    if (cat.subcategories[subName].some(t => t.file === track.file)) {
+                        apNowSub.textContent = subName;
+                        break;
+                    }
+                }
+
+                // Spinning CD
+                apCdSpinner.classList.add('spinning');
+
+                // Update active states
+                apPlaylistScroll.querySelectorAll('.ap-playlist-item').forEach((el, i) => {
+                    el.classList.toggle('active', i === index);
+                });
+                const activeEl = apPlaylistScroll.querySelector('.ap-playlist-item.active');
+                if (activeEl) activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+                // Init audio context for visualizer
+                apInitVisualizer();
+            }
+
+            // Auto-play next track
+            if (apAudio) {
+                apAudio.addEventListener('ended', () => {
+                    apCdSpinner.classList.remove('spinning');
+                    const idx = apFlatList.findIndex(t => t.file === apCurrentTrackFile);
+                    if (idx >= 0 && idx < apFlatList.length - 1) {
+                        apPlayTrack(idx + 1);
+                    }
+                });
+                apAudio.addEventListener('pause', () => {
+                    apCdSpinner.classList.remove('spinning');
+                });
+                apAudio.addEventListener('play', () => {
+                    apCdSpinner.classList.add('spinning');
+                });
+            }
+
+            // Category tab switching
+            apCatTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    apCurrentCategory = tab.dataset.category;
+                    apCatTabs.forEach(t => t.classList.toggle('active', t === tab));
+                    apBuildPlaylist(apCurrentCategory);
+                });
+            });
+
+            // Open Audio Player
+            if (btnAudioPlayer) btnAudioPlayer.addEventListener('click', () => {
+                apBuildPlaylist(apCurrentCategory);
+                apScreen.classList.remove('hidden');
+                apScreen.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    apScreen.style.transition = 'opacity 0.3s ease';
+                    apScreen.style.opacity = '1';
+                });
+                apResizeCanvas();
+            });
+
+            // Back from Audio Player
+            if (btnAudioBack) btnAudioBack.addEventListener('click', () => {
+                apStopAll();
+                apScreen.style.transition = 'opacity 0.3s ease';
+                apScreen.style.opacity = '0';
+                setTimeout(() => { apScreen.classList.add('hidden'); }, 300);
+            });
+
+            function apStopAll() {
+                if (apAudio) { apAudio.pause(); apAudio.src = ''; }
+                apCurrentTrackFile = null;
+                apNowTitle.textContent = '---';
+                apNowSub.textContent = '';
+                apCdSpinner.classList.remove('spinning');
+                apOverlay.classList.remove('hidden');
+                if (apAnimId) { cancelAnimationFrame(apAnimId); apAnimId = null; }
+                // Clear canvas
+                const ctx = apCanvas.getContext('2d');
+                ctx.clearRect(0, 0, apCanvas.width, apCanvas.height);
+            }
+
+            // Also stop audio player when returning to main menu from extras
+            const origExtrasReturn = extrasReturnBtn;
+            if (origExtrasReturn) {
+                origExtrasReturn.addEventListener('click', () => {
+                    apStopAll();
+                    apScreen.classList.add('hidden');
+                });
+            }
+
+            // ─── Audio Visualizer ──────────────────────────────────────
+            function apResizeCanvas() {
+                if (!apCanvas) return;
+                const rect = apCanvas.parentElement.getBoundingClientRect();
+                apCanvas.width = rect.width;
+                apCanvas.height = rect.height;
+            }
+            window.addEventListener('resize', apResizeCanvas);
+
+            function apInitVisualizer() {
+                if (!apAudioCtx) {
+                    apAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    apAnalyser = apAudioCtx.createAnalyser();
+                    apAnalyser.fftSize = 512;
+                    apSource = apAudioCtx.createMediaElementSource(apAudio);
+                    apSource.connect(apAnalyser);
+                    apAnalyser.connect(apAudioCtx.destination);
+                }
+                if (apAudioCtx.state === 'suspended') apAudioCtx.resume();
+                if (!apAnimId) apDrawVisualizer();
+            }
+
+            function apDrawVisualizer() {
+                apAnimId = requestAnimationFrame(apDrawVisualizer);
+                if (!apAnalyser || !apCanvas) return;
+
+                const ctx = apCanvas.getContext('2d');
+                const W = apCanvas.width;
+                const H = apCanvas.height;
+                const bufLen = apAnalyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufLen);
+                apAnalyser.getByteFrequencyData(dataArray);
+
+                // Also get waveform for the circular viz
+                const waveArray = new Uint8Array(bufLen);
+                apAnalyser.getByteTimeDomainData(waveArray);
+
+                // Clear with slight trail
+                ctx.fillStyle = 'rgba(5, 2, 8, 0.15)';
+                ctx.fillRect(0, 0, W, H);
+
+                const time = Date.now() * 0.001;
+                const cx = W / 2;
+                const cy = H / 2;
+
+                // ── Layer 1: Background radial pulse ──
+                const avgBass = (dataArray[0] + dataArray[1] + dataArray[2] + dataArray[3]) / 4;
+                const pulseR = 80 + avgBass * 0.6;
+                const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, pulseR);
+                gradient.addColorStop(0, `rgba(107, 45, 158, ${avgBass / 600})`);
+                gradient.addColorStop(0.5, `rgba(212, 168, 75, ${avgBass / 1200})`);
+                gradient.addColorStop(1, 'rgba(5, 2, 8, 0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, W, H);
+
+                // ── Layer 2: Circular frequency ring ──
+                const ringRadius = Math.min(W, H) * 0.25;
+                const barCount = 128;
+                for (let i = 0; i < barCount; i++) {
+                    const dataIdx = Math.floor(i * bufLen / barCount);
+                    const val = dataArray[dataIdx] / 255;
+                    const angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
+                    const barH = val * ringRadius * 0.8 + 2;
+
+                    const x1 = cx + Math.cos(angle) * ringRadius;
+                    const y1 = cy + Math.sin(angle) * ringRadius;
+                    const x2 = cx + Math.cos(angle) * (ringRadius + barH);
+                    const y2 = cy + Math.sin(angle) * (ringRadius + barH);
+
+                    const hue = 270 + val * 50;
+                    const alpha = 0.3 + val * 0.7;
+                    ctx.strokeStyle = `hsla(${hue}, 70%, ${40 + val * 30}%, ${alpha})`;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+
+                // Inner mirrored ring (smaller, gold)
+                for (let i = 0; i < barCount; i++) {
+                    const dataIdx = Math.floor(i * bufLen / barCount);
+                    const val = dataArray[dataIdx] / 255;
+                    const angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
+                    const barH = val * ringRadius * 0.4 + 1;
+
+                    const x1 = cx + Math.cos(angle) * ringRadius;
+                    const y1 = cy + Math.sin(angle) * ringRadius;
+                    const x2 = cx + Math.cos(angle) * (ringRadius - barH);
+                    const y2 = cy + Math.sin(angle) * (ringRadius - barH);
+
+                    ctx.strokeStyle = `rgba(212, 168, 75, ${0.15 + val * 0.4})`;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                }
+
+                // ── Layer 3: Center sigil circle (breathing) ──
+                const breathe = Math.sin(time * 2) * 0.15 + 0.85;
+                ctx.beginPath();
+                ctx.arc(cx, cy, 30 * breathe, 0, Math.PI * 2);
+                ctx.strokeStyle = `rgba(212, 168, 75, ${0.2 + avgBass / 800})`;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Inner dot
+                ctx.beginPath();
+                ctx.arc(cx, cy, 4, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(212, 168, 75, ${0.4 + avgBass / 500})`;
+                ctx.fill();
+
+                // ── Layer 4: Rotating sigil arcs ──
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(time * 0.3);
+                const sigArc = ringRadius - 15;
+                for (let i = 0; i < 3; i++) {
+                    const startAngle = (i * Math.PI * 2 / 3) + time * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, sigArc, startAngle, startAngle + 0.8);
+                    ctx.strokeStyle = `rgba(155, 114, 207, ${0.15 + avgBass / 1000})`;
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+                ctx.restore();
+
+                // ── Layer 5: Waveform oscilloscope along bottom ──
+                ctx.beginPath();
+                const sliceWidth = W / bufLen;
+                let x = 0;
+                for (let i = 0; i < bufLen; i++) {
+                    const v = waveArray[i] / 128.0;
+                    const y = H - 40 + (v - 1) * 30;
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                    x += sliceWidth;
+                }
+                ctx.strokeStyle = 'rgba(212, 168, 75, 0.25)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                // ── Layer 6: Floating particles reactive to bass ──
+                const particleCount = Math.floor(avgBass / 20);
+                for (let i = 0; i < particleCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const dist = ringRadius + Math.random() * ringRadius;
+                    const px = cx + Math.cos(angle) * dist;
+                    const py = cy + Math.sin(angle) * dist;
+                    const size = Math.random() * 2 + 0.5;
+                    ctx.beginPath();
+                    ctx.arc(px, py, size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(${Math.random() > 0.5 ? '212,168,75' : '155,114,207'}, ${Math.random() * 0.4 + 0.1})`;
+                    ctx.fill();
+                }
+            }
+
             document.addEventListener('keydown', (e) => {
                 if (gameStarted) return;
-                
+
                 if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     do {
