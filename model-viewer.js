@@ -3,6 +3,10 @@
 // ═══════════════════════════════════════════════════════════════
 
 (function initModelViewer() {
+    if (typeof THREE === 'undefined') {
+        console.warn('Model Viewer: THREE.js not loaded');
+        return;
+    }
     const mvScreen = document.getElementById('model-viewer-screen');
     if (!mvScreen) return;
 
@@ -16,7 +20,7 @@
     const mvViewerOverlay = document.getElementById('mv-viewer-overlay');
     const mvControlsHint = document.getElementById('mv-controls-hint');
     const catTabs = mvScreen.querySelectorAll('.mv-cat-tab');
-    const btnBack = document.getElementById('mv-back-btn');
+    const btnBack = document.getElementById('btn-model-back');
 
     let mvRenderer, mvScene, mvCamera, mvAnimId;
     let mvCurrentModel = null;
@@ -292,21 +296,28 @@
     });
 
     // ── Back Button ──
-    btnBack.addEventListener('click', () => {
-        mvScreen.classList.add('hidden');
+    if (btnBack) btnBack.addEventListener('click', () => {
         mvStopAnimate();
-        document.getElementById('extras-screen').classList.remove('hidden');
+        mvScreen.style.transition = 'opacity 0.3s ease';
+        mvScreen.style.opacity = '0';
+        setTimeout(() => {
+            mvScreen.classList.add('hidden');
+        }, 300);
     });
 
     // ── Open Model Viewer ──
     const btnModelViewer = document.getElementById('btn-model-viewer');
     if (btnModelViewer) {
         btnModelViewer.addEventListener('click', () => {
-            document.getElementById('extras-screen').classList.add('hidden');
-            mvScreen.classList.remove('hidden');
             mvInitRenderer();
-            mvResizeRenderer();
             mvBuildList(mvCurrentCategory);
+            mvScreen.classList.remove('hidden');
+            mvScreen.style.opacity = '0';
+            requestAnimationFrame(() => {
+                mvScreen.style.transition = 'opacity 0.3s ease';
+                mvScreen.style.opacity = '1';
+            });
+            mvResizeRenderer();
             mvStopAnimate();
             mvAnimate();
         });
