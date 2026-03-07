@@ -946,6 +946,395 @@
             border-top: 1px solid rgba(212, 168, 75, 0.06);
         }
 
+        /* ═══════════════════════════════════════════════════════════════
+           AUDIO PLAYER
+           ═══════════════════════════════════════════════════════════════ */
+        #audio-player-screen {
+            position: absolute;
+            inset: 0;
+            z-index: 10060;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg,
+                rgba(8, 4, 16, 0.99) 0%,
+                rgba(16, 8, 32, 0.98) 40%,
+                rgba(10, 5, 22, 0.99) 100%
+            );
+        }
+
+        #audio-player-screen.hidden {
+            display: none;
+        }
+
+        /* ─── Top Bar: Category Tabs + Back Button ──────────────────── */
+        #ap-top-bar {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 30px 14px;
+            position: relative;
+        }
+
+        #ap-top-bar .extras-return-btn {
+            position: absolute;
+            top: 18px;
+            right: 30px;
+            width: 140px;
+        }
+
+        #ap-category-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(10, 5, 20, 0.6);
+            border: 1px solid rgba(212, 168, 75, 0.15);
+            border-radius: 6px;
+            padding: 4px;
+        }
+
+        .ap-cat-tab {
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(212, 196, 168, 0.5);
+            background: transparent;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .ap-cat-tab:hover {
+            color: rgba(212, 196, 168, 0.8);
+            background: rgba(107, 45, 158, 0.1);
+        }
+
+        .ap-cat-tab.active {
+            color: var(--sigil-gold);
+            background: linear-gradient(135deg,
+                rgba(107, 45, 158, 0.25) 0%,
+                rgba(45, 20, 80, 0.3) 100%
+            );
+            text-shadow: 0 0 10px rgba(212, 168, 75, 0.4);
+            box-shadow:
+                0 0 12px rgba(107, 45, 158, 0.15),
+                inset 0 0 8px rgba(107, 45, 158, 0.1);
+        }
+
+        /* ─── Main Content: Playlist Left, Visualizer Right ─────────── */
+        #ap-content {
+            flex: 1;
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            padding: 0 30px 30px;
+            box-sizing: border-box;
+            min-height: 0;
+        }
+
+        /* ─── Playlist Panel (left side) ────────────────────────────── */
+        #ap-playlist-panel {
+            width: 340px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg,
+                rgba(16, 8, 30, 0.95) 0%,
+                rgba(12, 6, 24, 0.98) 100%
+            );
+            border: 1px solid rgba(212, 168, 75, 0.2);
+            border-radius: 4px;
+            box-shadow:
+                0 0 16px rgba(107, 45, 158, 0.1),
+                inset 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #ap-playlist-header {
+            flex-shrink: 0;
+            padding: 14px 16px 10px;
+            border-bottom: 1px solid rgba(212, 168, 75, 0.15);
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        #ap-playlist-title {
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--sigil-gold);
+        }
+
+        #ap-playlist-count {
+            font-family: 'Cinzel', serif;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: rgba(212, 168, 75, 0.4);
+        }
+
+        #ap-playlist-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 6px 0;
+        }
+
+        #ap-playlist-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #ap-playlist-scroll::-webkit-scrollbar-track {
+            background: rgba(10, 5, 20, 0.5);
+        }
+
+        #ap-playlist-scroll::-webkit-scrollbar-thumb {
+            background: rgba(212, 168, 75, 0.25);
+            border-radius: 3px;
+        }
+
+        #ap-playlist-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(212, 168, 75, 0.45);
+        }
+
+        /* Sub-category headers inside playlist */
+        .ap-subcat-header {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(155, 114, 207, 0.5);
+            padding: 12px 16px 6px;
+            border-top: 1px solid rgba(155, 114, 207, 0.1);
+        }
+
+        .ap-subcat-header:first-child {
+            border-top: none;
+        }
+
+        /* Playlist items */
+        .ap-playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 9px 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .ap-playlist-item:hover {
+            background: rgba(107, 45, 158, 0.12);
+            border-left-color: rgba(155, 114, 207, 0.4);
+        }
+
+        .ap-playlist-item.active {
+            background: linear-gradient(90deg,
+                rgba(107, 45, 158, 0.2) 0%,
+                rgba(107, 45, 158, 0.05) 100%
+            );
+            border-left-color: var(--sigil-gold);
+        }
+
+        .ap-playlist-item.active .ap-item-title {
+            color: var(--sigil-gold);
+            text-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+        }
+
+        .ap-playlist-item.active .ap-item-index {
+            color: var(--sigil-gold);
+        }
+
+        .ap-item-index {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            color: rgba(155, 114, 207, 0.35);
+            min-width: 22px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .ap-item-icon {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            background: rgba(107, 45, 158, 0.15);
+            border: 1px solid rgba(155, 114, 207, 0.2);
+        }
+
+        .ap-item-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .ap-playlist-item.active .ap-item-icon {
+            background: rgba(212, 168, 75, 0.15);
+            border-color: rgba(212, 168, 75, 0.35);
+        }
+
+        .ap-item-title {
+            font-family: 'Cinzel', serif;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+            color: #c4b4a0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: color 0.2s ease;
+        }
+
+        .ap-playlist-item:hover .ap-item-title {
+            color: #e8d8c0;
+        }
+
+        .ap-playlist-item + .ap-playlist-item {
+            border-top: 1px solid rgba(212, 168, 75, 0.06);
+        }
+
+        /* ─── Visualizer Area (right side) ──────────────────────────── */
+        #ap-visualizer-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        #ap-visualizer-frame {
+            flex: 1;
+            position: relative;
+            background: #050208;
+            border: 2px solid rgba(212, 168, 75, 0.25);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow:
+                0 0 20px rgba(107, 45, 158, 0.15),
+                inset 0 0 40px rgba(0, 0, 0, 0.5);
+        }
+
+        #ap-visualizer-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        #ap-visualizer-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        #ap-visualizer-overlay.hidden {
+            display: none;
+        }
+
+        #ap-no-audio {
+            text-align: center;
+            opacity: 0.5;
+        }
+
+        #ap-no-audio p {
+            font-family: 'Cinzel', serif;
+            color: #d4c4a8;
+            font-size: 16px;
+            letter-spacing: 2px;
+            margin-top: 16px;
+        }
+
+        /* ─── Now Playing Bar ───────────────────────────────────────── */
+        #ap-now-playing {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg,
+                rgba(20, 10, 38, 0.9) 0%,
+                rgba(30, 15, 55, 0.85) 100%
+            );
+            border: 1px solid rgba(212, 168, 75, 0.15);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+
+        #ap-now-playing-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        /* ─── Spinning CD ───────────────────────────────────────────── */
+        #ap-cd-spinner {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            opacity: 0.3;
+            transition: opacity 0.4s ease;
+        }
+
+        #ap-cd-spinner.spinning {
+            opacity: 1;
+            animation: cdSpin 3s linear infinite;
+        }
+
+        @keyframes cdSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        #ap-now-playing-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        #ap-now-playing-label {
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(212, 168, 75, 0.5);
+        }
+
+        #ap-now-playing-title {
+            font-family: 'Cinzel', serif;
+            font-size: 15px;
+            letter-spacing: 1px;
+            color: var(--sigil-gold);
+            text-shadow: 0 0 8px rgba(212, 168, 75, 0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #ap-now-playing-sub {
+            font-family: 'Cinzel', serif;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: rgba(155, 114, 207, 0.5);
+        }
+
+        /* Style native audio controls */
+        #ap-audio {
+            height: 36px;
+            flex-shrink: 0;
+            border-radius: 18px;
+            outline: none;
+            filter: sepia(0.3) saturate(1.5) hue-rotate(220deg) brightness(0.85);
+        }
+
         /* Loading Screen */
         #loading-screen {
             position: fixed;
