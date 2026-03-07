@@ -1146,30 +1146,29 @@
             100% { top: 100%; }
         }
         /* ═══════════════════════════════════════════════════════════════
-           ORNATE BORDER SYSTEM - High-fantasy double-frame with gold accents
-           Outer gold line + inner gold line + corner glow accents
+           ORNATE BORDER SYSTEM - SVG-based high-fantasy sigil frames
+           Complex geometric borders: diamond lozenges, curved brackets,
+           filigree arcs, notch marks, layered frames with varying weights
+           Blends high-fantasy with planetarium sigil aesthetic
            ═══════════════════════════════════════════════════════════════ */
 
-        /* Ornate outer frame - visible gold double-border on major panels
-           Uses outline for the outer gold line + border for inner gold line
-           Creates the high-fantasy double-frame look from the pause menu */
-
-        /* LARGE PANELS - prominent double-frame with corner glow */
+        /* LARGE PANELS - Full ornate frame with double brackets, diamonds,
+           filigree arcs, notch marks, circles, and edge midpoint accents */
         #inventory-container,
         #lore-book,
         #skill-info.show,
-        #skill-points {
-            border: 1px solid rgba(212,168,75,0.4) !important;
-            outline: 1px solid rgba(212,168,75,0.2);
-            outline-offset: 4px;
-            background-image:
-                radial-gradient(ellipse at 0% 0%, rgba(212,168,75,0.12) 0%, transparent 30%),
-                radial-gradient(ellipse at 100% 0%, rgba(212,168,75,0.12) 0%, transparent 30%),
-                radial-gradient(ellipse at 0% 100%, rgba(212,168,75,0.08) 0%, transparent 30%),
-                radial-gradient(ellipse at 100% 100%, rgba(212,168,75,0.08) 0%, transparent 30%);
+        #skill-points,
+        .dialogue-panel {
+            border: 2px solid transparent !important;
+            border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none'%3E %3Crect x='2' y='2' width='196' height='196' rx='1.5' stroke='rgb(212,168,75)' stroke-opacity='0.3' stroke-width='0.75'/%3E %3Crect x='9' y='9' width='182' height='182' rx='1' stroke='rgb(212,168,75)' stroke-opacity='0.15' stroke-width='0.5'/%3E %3Cpath d='M2 58 L2 14 Q2 2 14 2 L58 2' stroke='rgb(212,168,75)' stroke-opacity='0.65' stroke-width='2.5' stroke-linecap='square'/%3E %3Cpath d='M9 46 L9 15 Q9 9 15 9 L46 9' stroke='rgb(212,168,75)' stroke-opacity='0.3' stroke-width='1'/%3E %3Cpolygon points='8,8 14,2 20,8 14,14' fill='rgb(212,168,75)' fill-opacity='0.5' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='0.5'/%3E %3Cpolygon points='2,32 6,28 10,32 6,36' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpolygon points='32,2 36,6 32,10 28,6' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpath d='M15 38 Q26 26 38 15' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.75'/%3E %3Cpath d='M12 30 Q20 20 30 12' stroke='rgb(212,168,75)' stroke-opacity='0.12' stroke-width='0.5'/%3E %3Cline x1='0' y1='44' x2='5' y2='44' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Cline x1='44' y1='0' x2='44' y2='5' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Ccircle cx='6' cy='6' r='2.5' stroke='rgb(212,168,75)' stroke-opacity='0.25' stroke-width='0.5'/%3E %3Cpath d='M142 2 L186 2 Q198 2 198 14 L198 58' stroke='rgb(212,168,75)' stroke-opacity='0.65' stroke-width='2.5' stroke-linecap='square'/%3E %3Cpath d='M154 9 L185 9 Q191 9 191 15 L191 46' stroke='rgb(212,168,75)' stroke-opacity='0.3' stroke-width='1'/%3E %3Cpolygon points='192,8 186,2 180,8 186,14' fill='rgb(212,168,75)' fill-opacity='0.5' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='0.5'/%3E %3Cpolygon points='198,32 194,28 190,32 194,36' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpolygon points='168,2 164,6 168,10 172,6' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpath d='M162 15 Q174 26 185 38' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.75'/%3E %3Cpath d='M170 12 Q180 20 188 30' stroke='rgb(212,168,75)' stroke-opacity='0.12' stroke-width='0.5'/%3E %3Cline x1='195' y1='44' x2='200' y2='44' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Cline x1='156' y1='0' x2='156' y2='5' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Ccircle cx='194' cy='6' r='2.5' stroke='rgb(212,168,75)' stroke-opacity='0.25' stroke-width='0.5'/%3E %3Cpath d='M2 142 L2 186 Q2 198 14 198 L58 198' stroke='rgb(212,168,75)' stroke-opacity='0.65' stroke-width='2.5' stroke-linecap='square'/%3E %3Cpath d='M9 154 L9 185 Q9 191 15 191 L46 191' stroke='rgb(212,168,75)' stroke-opacity='0.3' stroke-width='1'/%3E %3Cpolygon points='8,192 14,198 20,192 14,186' fill='rgb(212,168,75)' fill-opacity='0.5' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='0.5'/%3E %3Cpolygon points='2,168 6,164 10,168 6,172' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpolygon points='32,198 36,194 32,190 28,194' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpath d='M15 162 Q26 174 38 185' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.75'/%3E %3Cpath d='M12 170 Q20 180 30 188' stroke='rgb(212,168,75)' stroke-opacity='0.12' stroke-width='0.5'/%3E %3Cline x1='0' y1='156' x2='5' y2='156' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Cline x1='44' y1='195' x2='44' y2='200' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Ccircle cx='6' cy='194' r='2.5' stroke='rgb(212,168,75)' stroke-opacity='0.25' stroke-width='0.5'/%3E %3Cpath d='M142 198 L186 198 Q198 198 198 186 L198 142' stroke='rgb(212,168,75)' stroke-opacity='0.65' stroke-width='2.5' stroke-linecap='square'/%3E %3Cpath d='M154 191 L185 191 Q191 191 191 185 L191 154' stroke='rgb(212,168,75)' stroke-opacity='0.3' stroke-width='1'/%3E %3Cpolygon points='192,192 186,198 180,192 186,186' fill='rgb(212,168,75)' fill-opacity='0.5' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='0.5'/%3E %3Cpolygon points='198,168 194,164 190,168 194,172' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpolygon points='168,198 164,194 168,190 172,194' fill='rgb(212,168,75)' fill-opacity='0.3'/%3E %3Cpath d='M162 185 Q174 174 185 162' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.75'/%3E %3Cpath d='M170 188 Q180 180 188 170' stroke='rgb(212,168,75)' stroke-opacity='0.12' stroke-width='0.5'/%3E %3Cline x1='195' y1='156' x2='200' y2='156' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Cline x1='156' y1='195' x2='156' y2='200' stroke='rgb(212,168,75)' stroke-opacity='0.2' stroke-width='0.5'/%3E %3Ccircle cx='194' cy='194' r='2.5' stroke='rgb(212,168,75)' stroke-opacity='0.25' stroke-width='0.5'/%3E %3Cpolygon points='100,0 104,4 100,8 96,4' fill='rgb(212,168,75)' fill-opacity='0.3' stroke='rgb(212,168,75)' stroke-opacity='0.35' stroke-width='0.5'/%3E %3Cline x1='86' y1='2' x2='96' y2='2' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cline x1='104' y1='2' x2='114' y2='2' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cpolygon points='100,192 104,196 100,200 96,196' fill='rgb(212,168,75)' fill-opacity='0.3' stroke='rgb(212,168,75)' stroke-opacity='0.35' stroke-width='0.5'/%3E %3Cline x1='86' y1='198' x2='96' y2='198' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cline x1='104' y1='198' x2='114' y2='198' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cpolygon points='0,100 4,96 8,100 4,104' fill='rgb(212,168,75)' fill-opacity='0.3' stroke='rgb(212,168,75)' stroke-opacity='0.35' stroke-width='0.5'/%3E %3Cline x1='2' y1='86' x2='2' y2='96' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cline x1='2' y1='104' x2='2' y2='114' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cpolygon points='192,100 196,96 200,100 196,104' fill='rgb(212,168,75)' fill-opacity='0.3' stroke='rgb(212,168,75)' stroke-opacity='0.35' stroke-width='0.5'/%3E %3Cline x1='198' y1='86' x2='198' y2='96' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3Cline x1='198' y1='104' x2='198' y2='114' stroke='rgb(212,168,75)' stroke-opacity='0.18' stroke-width='0.5'/%3E %3C/svg%3E") !important;
+            border-image-slice: 60 fill !important;
+            border-image-width: 22px !important;
+            border-image-outset: 20px !important;
+            border-image-repeat: stretch !important;
+            outline: none !important;
         }
 
-        /* MEDIUM PANELS - double-frame */
+        /* MEDIUM PANELS - Ornate brackets with corner diamonds, arm accents, arcs */
         #instructions,
         .harvest-container,
         #pickup-notification,
@@ -1182,14 +1181,18 @@
         .mat-notif.show,
         #xp-bar-container,
         #hotbar,
-        .dialogue-panel,
         .biome-banner,
         .tooltip-content {
-            outline: 1px solid rgba(212,168,75,0.18);
-            outline-offset: 3px;
+            border: 2px solid transparent !important;
+            border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 150 150' fill='none'%3E %3Crect x='2' y='2' width='146' height='146' rx='1' stroke='rgb(212,168,75)' stroke-opacity='0.28' stroke-width='0.75'/%3E %3Crect x='7' y='7' width='136' height='136' rx='0.5' stroke='rgb(212,168,75)' stroke-opacity='0.12' stroke-width='0.5'/%3E %3Cpath d='M2 42 L2 10 Q2 2 10 2 L42 2' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='2' stroke-linecap='square'/%3E %3Cpolygon points='6,6 10,2 14,6 10,10' fill='rgb(212,168,75)' fill-opacity='0.45' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='0.5'/%3E %3Cpolygon points='2,24 5,21 8,24 5,27' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='24,2 27,5 24,8 21,5' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpath d='M10 32 Q20 20 32 10' stroke='rgb(212,168,75)' stroke-opacity='0.15' stroke-width='0.5'/%3E %3Cpath d='M108 2 L140 2 Q148 2 148 10 L148 42' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='2' stroke-linecap='square'/%3E %3Cpolygon points='144,6 140,2 136,6 140,10' fill='rgb(212,168,75)' fill-opacity='0.45' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='0.5'/%3E %3Cpolygon points='148,24 145,21 142,24 145,27' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='126,2 123,5 126,8 129,5' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpath d='M118 10 Q130 20 140 32' stroke='rgb(212,168,75)' stroke-opacity='0.15' stroke-width='0.5'/%3E %3Cpath d='M2 108 L2 140 Q2 148 10 148 L42 148' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='2' stroke-linecap='square'/%3E %3Cpolygon points='6,144 10,148 14,144 10,140' fill='rgb(212,168,75)' fill-opacity='0.45' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='0.5'/%3E %3Cpolygon points='2,126 5,123 8,126 5,129' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='24,148 27,145 24,142 21,145' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpath d='M10 118 Q20 130 32 140' stroke='rgb(212,168,75)' stroke-opacity='0.15' stroke-width='0.5'/%3E %3Cpath d='M108 148 L140 148 Q148 148 148 140 L148 108' stroke='rgb(212,168,75)' stroke-opacity='0.6' stroke-width='2' stroke-linecap='square'/%3E %3Cpolygon points='144,144 140,148 136,144 140,140' fill='rgb(212,168,75)' fill-opacity='0.45' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='0.5'/%3E %3Cpolygon points='148,126 145,123 142,126 145,129' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='126,148 123,145 126,142 129,145' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpath d='M118 140 Q130 130 140 118' stroke='rgb(212,168,75)' stroke-opacity='0.15' stroke-width='0.5'/%3E %3Cpolygon points='75,0 78,3 75,6 72,3' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='75,144 78,147 75,150 72,147' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='0,75 3,72 6,75 3,78' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3Cpolygon points='144,75 147,72 150,75 147,78' fill='rgb(212,168,75)' fill-opacity='0.25'/%3E %3C/svg%3E") !important;
+            border-image-slice: 42 fill !important;
+            border-image-width: 16px !important;
+            border-image-outset: 14px !important;
+            border-image-repeat: stretch !important;
+            outline: none !important;
         }
 
-        /* SMALL ELEMENTS - subtle double-frame */
+        /* SMALL ELEMENTS - Angular corner brackets with diamond accents */
         .shop-slot,
         .bag-slot:not(.empty),
         .hotbar-slot,
@@ -1197,8 +1200,13 @@
         .equip-slot,
         .bag-equip-slot,
         .craft-recipe {
-            outline: 1px solid rgba(212,168,75,0.1);
-            outline-offset: 2px;
+            border: 1px solid transparent !important;
+            border-image-source: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none'%3E %3Crect x='1' y='1' width='98' height='98' rx='1' stroke='rgb(212,168,75)' stroke-opacity='0.22' stroke-width='0.5'/%3E %3Cpath d='M1 28 L1 6 Q1 1 6 1 L28 1' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='1.5' stroke-linecap='square'/%3E %3Cpolygon points='4,4 7,1 10,4 7,7' fill='rgb(212,168,75)' fill-opacity='0.35'/%3E %3Cpath d='M72 1 L94 1 Q99 1 99 6 L99 28' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='1.5' stroke-linecap='square'/%3E %3Cpolygon points='96,4 93,1 90,4 93,7' fill='rgb(212,168,75)' fill-opacity='0.35'/%3E %3Cpath d='M1 72 L1 94 Q1 99 6 99 L28 99' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='1.5' stroke-linecap='square'/%3E %3Cpolygon points='4,96 7,99 10,96 7,93' fill='rgb(212,168,75)' fill-opacity='0.35'/%3E %3Cpath d='M72 99 L94 99 Q99 99 99 94 L99 72' stroke='rgb(212,168,75)' stroke-opacity='0.5' stroke-width='1.5' stroke-linecap='square'/%3E %3Cpolygon points='96,96 93,99 90,96 93,93' fill='rgb(212,168,75)' fill-opacity='0.35'/%3E %3C/svg%3E") !important;
+            border-image-slice: 28 fill !important;
+            border-image-width: 8px !important;
+            border-image-outset: 7px !important;
+            border-image-repeat: stretch !important;
+            outline: none !important;
         }
 
         @keyframes goldSheen {
@@ -1226,20 +1234,7 @@
             overflow: visible;
             z-index: 500;
         }
-        #instructions::before {
-            content: '';
-            position: absolute; inset: -1px;
-            border: 1px solid rgba(212,168,75,0.25);
-            border-radius: 3px;
-            pointer-events: none;
-        }
-        #instructions::after {
-            content: '';
-            position: absolute; inset: 5px;
-            border: 1px solid rgba(212,168,75,0.12);
-            border-radius: 2px;
-            pointer-events: none;
-        }
+        /* instructions ::before/::after removed - ornate SVG border-image handles framing */
         #instructions strong {
             color: var(--sigil-gold);
             font-family: 'Cinzel', serif;
