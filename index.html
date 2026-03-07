@@ -203,6 +203,77 @@
                 </div>
             </div>
 
+            <!-- Model Viewer Screen -->
+            <div id="model-viewer-screen" class="hidden">
+                <div id="mv-top-bar">
+                    <div id="mv-category-tabs">
+                        <button class="mv-cat-tab active" data-category="flora">Flora</button>
+                        <button class="mv-cat-tab" data-category="fauna">Fauna</button>
+                        <button class="mv-cat-tab" data-category="groundcover">Groundcover</button>
+                        <button class="mv-cat-tab" data-category="npcs">NPCs</button>
+                        <button class="mv-cat-tab" data-category="buildings">Buildings</button>
+                        <button class="mv-cat-tab" data-category="items">Items</button>
+                        <button class="mv-cat-tab" data-category="weapons">Weapons</button>
+                        <button class="mv-cat-tab" data-category="tools">Tools</button>
+                    </div>
+                    <button class="extras-return-btn" id="btn-model-back">
+                        <div class="menu-btn-bg"></div>
+                        <div class="menu-btn-corner menu-btn-corner-tl"></div>
+                        <div class="menu-btn-corner menu-btn-corner-br"></div>
+                        <span class="menu-btn-text">Back</span>
+                    </button>
+                </div>
+                <div id="mv-content">
+                    <div id="mv-model-list-panel">
+                        <div id="mv-list-header">
+                            <span id="mv-list-title">Model Library</span>
+                            <span id="mv-list-count"></span>
+                        </div>
+                        <div id="mv-list-scroll">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                    <div id="mv-viewer-wrapper">
+                        <div id="mv-viewer-frame">
+                            <canvas id="mv-viewer-canvas"></canvas>
+                            <div id="mv-viewer-overlay">
+                                <div id="mv-no-model">
+                                    <svg viewBox="0 0 80 80" width="80" height="80">
+                                        <circle cx="40" cy="40" r="35" fill="none" stroke="#d4a84b" stroke-width="2" opacity="0.4"/>
+                                        <path d="M40 15 L58 28 L58 52 L40 65 L22 52 L22 28 Z" fill="none" stroke="#d4a84b" stroke-width="1.5" opacity="0.5"/>
+                                        <line x1="40" y1="15" x2="40" y2="65" stroke="#d4a84b" stroke-width="0.8" opacity="0.3"/>
+                                        <line x1="22" y1="28" x2="58" y2="52" stroke="#d4a84b" stroke-width="0.8" opacity="0.3"/>
+                                        <line x1="58" y1="28" x2="22" y2="52" stroke="#d4a84b" stroke-width="0.8" opacity="0.3"/>
+                                    </svg>
+                                    <p>Select a model to view</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mv-info-bar">
+                            <div id="mv-info-left">
+                                <div id="mv-model-icon">
+                                    <svg viewBox="0 0 48 48" width="48" height="48">
+                                        <polygon points="24,4 44,16 44,36 24,44 4,36 4,16" fill="#1a0e2e" stroke="#d4a84b" stroke-width="1.5"/>
+                                        <line x1="24" y1="4" x2="24" y2="44" stroke="rgba(155,114,207,0.3)" stroke-width="0.5"/>
+                                        <line x1="4" y1="16" x2="44" y2="36" stroke="rgba(155,114,207,0.2)" stroke-width="0.5"/>
+                                        <line x1="44" y1="16" x2="4" y2="36" stroke="rgba(155,114,207,0.2)" stroke-width="0.5"/>
+                                        <circle cx="24" cy="24" r="3" fill="#d4a84b"/>
+                                    </svg>
+                                </div>
+                                <div id="mv-info-text">
+                                    <span id="mv-info-label">Viewing:</span>
+                                    <span id="mv-info-name">---</span>
+                                    <span id="mv-info-sub"></span>
+                                </div>
+                            </div>
+                            <div id="mv-controls-hint">
+                                <span>Drag to rotate &bull; Scroll to zoom</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Memes Video Player Screen -->
             <div id="memes-screen" class="hidden">
                 <div id="memes-header">
@@ -848,6 +919,9 @@
         </div>
 
     </div><!-- End game-container -->
+
+    <!-- Three.js (global build for Model Viewer) -->
+    <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
 
     <!-- Import Map for ES Modules -->
     <script type="importmap">
@@ -1714,5 +1788,8 @@
         window.isGamePaused = function() { return gamePaused; };
     })();
     </script>
+
+    <!-- Model Viewer -->
+    <script src="model-viewer.js"></script>
 </body>
 </html>
