@@ -881,10 +881,26 @@ function animate() {
     renderer.info.reset();
 }
 
+// Head bob state
+let _headBobPhase = 0;
+let _headBobIntensity = 0;
+
+// Footprint state
+let _lastFootprintTime = 0;
+const _footprintDecals = [];
+const _footprintGeo = new THREE.CircleGeometry(0.12, 6);
+const _footprintMat = new THREE.MeshBasicMaterial({
+    color: 0x000000, transparent: true, opacity: 0.18,
+    depthWrite: false, side: THREE.DoubleSide
+});
+
+// Slide dust state
+let _lastSlideDustTime = 0;
+
 function updatePlayerMovement(delta) {
     const m = pMove;
     const px = player.position.x, pz = player.position.z;
-    
+
     // Get ground height
     let gh;
     if (currentInterior) {
@@ -892,16 +908,24 @@ function updatePlayerMovement(delta) {
     } else {
         gh = getHeight(px, pz);
     }
-    
-    // Check grounded state
+
+    // Check grounded state - use slightly larger threshold for slope adherence
     const groundLevel = gh + m.camHeight;
-    m.isGrounded = player.position.y <= groundLevel + 0.05;
-    
+    const groundGap = player.position.y - groundLevel;
+    m.isGrounded = groundGap <= 0.15;
+
+    // Constant gravity pull when grounded on slopes - keeps player stuck to terrain
+    // This prevents "floating" when walking/sliding downhill
+    if (m.isGrounded && groundGap > 0.01 && m.velY <= 0) {
+        player.position.y = groundLevel;
+        m.velY = 0;
+    }
+
     // Get input direction
     const inputX = (keys.d ? 1 : 0) - (keys.a ? 1 : 0);
     const inputZ = (keys.s ? 1 : 0) - (keys.w ? 1 : 0);
     const hasInput = inputX !== 0 || inputZ !== 0;
-    
+
     // Calculate world direction
     let worldDirX = 0, worldDirZ = 0;
     if (hasInput) {
@@ -911,13 +935,13 @@ function updatePlayerMovement(delta) {
         const len = Math.sqrt(worldDirX * worldDirX + worldDirZ * worldDirZ);
         if (len > 0) { worldDirX /= len; worldDirZ /= len; }
     }
-    
+
     // Update cooldowns
     if (m.slideCooldownTime > 0) m.slideCooldownTime -= delta * 1000;
     if (m.dashCooldownTime > 0) m.dashCooldownTime -= delta * 1000;
-    
+
     let frameSpeedX = 0, frameSpeedZ = 0;
-    
+
     // Dash
     if (m.isDashing) {
         m.dashTime -= delta * 1000;
@@ -937,11 +961,11 @@ function updatePlayerMovement(delta) {
         m.dashDir.z = worldDirZ;
         showMoveFeedback('DASH', '#60a5fa');
     }
-    
+
     // Slide
     if (m.isSliding) {
         m.slideTime -= delta * 1000;
-        if (m.slideTime <= 0 || m.spaceJustPressed || !m.isGrounded) {
+        if (m.slideTime <= 0 || m.spaceJustPressed) {
             m.isSliding = false;
             m.slideCooldownTime = MOVE.slideCooldown;
             m.targetCamHeight = 1.6;
@@ -953,7 +977,7 @@ function updatePlayerMovement(delta) {
             }
         } else {
             const slideProgress = 1 - (m.slideTime / MOVE.slideDuration);
-            const slideFalloff = 1 - (slideProgress * slideProgress * 0.6);
+            const slideFalloff = 1 - (slideProgress * slideProgress * 0.7);
             const currentSlideSpeed = MOVE.slideSpeed * slideFalloff;
             frameSpeedX = m.slideDir.x * currentSlideSpeed;
             frameSpeedZ = m.slideDir.z * currentSlideSpeed;
@@ -961,6 +985,19 @@ function updatePlayerMovement(delta) {
             player.position.z += frameSpeedZ * delta * 60;
             m.targetCamHeight = MOVE.slideHeight;
             m.targetCamTilt = MOVE.slideTilt * (1 - slideProgress * 0.5);
+
+            // Spawn biome-colored dust particles while sliding
+            if (!currentInterior && time - _lastSlideDustTime > 0.06) {
+                _lastSlideDustTime = time;
+                const biome = BiomeSystem.getCurrent();
+                const dustColor = biome.grassColor;
+                const dustPos = new THREE.Vector3(
+                    player.position.x - m.slideDir.x * 0.3 + (Math.random() - 0.5) * 0.4,
+                    gh + 0.1,
+                    player.position.z - m.slideDir.z * 0.3 + (Math.random() - 0.5) * 0.4
+                );
+                ParticleSystem.spawnImpact(dustPos, dustColor, 3);
+            }
         }
     } else if (m.ctrlJustPressed && hasInput && m.isGrounded && m.slideCooldownTime <= 0 && !m.isDashing) {
         m.isSliding = true;
@@ -970,62 +1007,148 @@ function updatePlayerMovement(delta) {
         m.targetCamTilt = MOVE.slideTilt;
         showMoveFeedback('SLIDE', '#f472b6');
     }
-    
+
     // Jump
     if (m.spaceJustPressed && m.isGrounded && !m.isSliding) {
         m.velY = MOVE.jumpForce;
         m.isGrounded = false;
     }
-    
+
     // Normal movement
     if (!m.isSliding && !m.isDashing) {
         const isSprinting = keys.shift && hasInput;
         const moveSpeed = isSprinting ? MOVE.sprintSpeed : MOVE.walkSpeed;
-        
+
         if (hasInput) {
             frameSpeedX = worldDirX * moveSpeed;
             frameSpeedZ = worldDirZ * moveSpeed;
             player.position.x += frameSpeedX * delta * 60;
             player.position.z += frameSpeedZ * delta * 60;
         }
-        
+
         m.targetCamTilt = 0;
     }
-    
-    // Gravity
+
+    // Gravity - apply constant downward pull even when "grounded" near slopes
     const physicsScale = delta * 60;
     if (!m.isGrounded) {
         m.velY -= MOVE.gravity * physicsScale;
+    } else {
+        // Small constant downward velocity to maintain ground contact on slopes
+        m.velY = -0.08;
     }
     player.position.y += m.velY * physicsScale;
-    
+
+    // Re-sample ground after movement (player may have moved to new terrain)
+    let newGh;
+    if (currentInterior) {
+        newGh = currentInterior.scene.position.y;
+    } else {
+        newGh = getHeight(player.position.x, player.position.z);
+    }
+    const newGroundLevel = newGh + m.camHeight;
+
     // Ground collision
-    if (player.position.y < groundLevel) {
-        player.position.y = groundLevel;
+    if (player.position.y < newGroundLevel) {
+        player.position.y = newGroundLevel;
         m.velY = 0;
         m.isGrounded = true;
     }
-    
+
     // Calculate current speed
     m.currentSpeed = Math.sqrt(frameSpeedX * frameSpeedX + frameSpeedZ * frameSpeedZ);
-    
+
     // Dynamic FOV
     const fovSpeedRef = MOVE.sprintSpeed * 1.2;
     const speedRatio = Math.min(m.currentSpeed / fovSpeedRef, 1);
     m.targetFOV = MOVE.baseFOV + (MOVE.maxFOV - MOVE.baseFOV) * speedRatio;
-    
+
     m.currentFOV += (m.targetFOV - m.currentFOV) * MOVE.fovSmoothness;
     if (Math.abs(m.currentFOV - lastFOV) > 0.1) {
         camera.fov = m.currentFOV;
         camera.updateProjectionMatrix();
         lastFOV = m.currentFOV;
     }
-    
+
     // Smooth camera height and tilt
     m.camHeight += (m.targetCamHeight - m.camHeight) * 0.15;
     m.camTilt += (m.targetCamTilt - m.camTilt) * MOVE.tiltSmoothness;
     camera.rotation.z = m.camTilt;
-    
+
+    // === HEAD BOBBING - synced with hand bob frequency but lower intensity ===
+    // Hand bob uses: Math.sin(time * 12) * 0.015 (walk) and Math.sin(time * 2.5) * 0.008 (idle)
+    // Head bob: same frequency, ~40% intensity, applied as camera Y offset
+    const isMoving = hasInput && m.isGrounded && !m.isSliding && !m.isDashing;
+    const isSprinting = keys.shift && isMoving;
+
+    if (isMoving) {
+        // Walk/sprint bob - same freq as hand bob (time * 12), lower amplitude
+        const bobFreq = isSprinting ? 14 : 12;
+        const bobAmp = isSprinting ? 0.018 : 0.012;
+        _headBobPhase = time * bobFreq;
+        _headBobIntensity += (1 - _headBobIntensity) * 0.15;
+        const vertBob = Math.sin(_headBobPhase) * bobAmp * _headBobIntensity;
+        const horizBob = Math.sin(_headBobPhase * 0.5) * bobAmp * 0.3 * _headBobIntensity;
+        camera.position.y = vertBob;
+        camera.position.x = horizBob;
+    } else {
+        // Settle back to center
+        _headBobIntensity += (0 - _headBobIntensity) * 0.1;
+        camera.position.y = Math.sin(time * 2.5) * 0.003 * (1 - _headBobIntensity); // subtle idle sway
+        camera.position.x = 0;
+    }
+
+    // === FOOTPRINT DECALS - dark ground-blending marks when walking ===
+    if (isMoving && !currentInterior && m.isGrounded) {
+        const footprintInterval = isSprinting ? 0.2 : 0.35;
+        if (time - _lastFootprintTime > footprintInterval) {
+            _lastFootprintTime = time;
+            // Alternate left/right foot offset
+            const side = (_footprintDecals.length % 2 === 0) ? 1 : -1;
+            const perpX = -Math.sin(player.rotation.y) * side * 0.15;
+            const perpZ = -Math.cos(player.rotation.y) * side * 0.15;
+
+            const footprint = new THREE.Mesh(_footprintGeo, _footprintMat.clone());
+            footprint.rotation.x = -Math.PI / 2;
+            footprint.rotation.z = player.rotation.y + (Math.random() - 0.5) * 0.2;
+            footprint.position.set(
+                player.position.x + perpX,
+                newGh + 0.02,
+                player.position.z + perpZ
+            );
+
+            // Darken the footprint color to blend with ground
+            const biome = BiomeSystem.getCurrent();
+            const groundCol = new THREE.Color(biome.grassColor);
+            groundCol.multiplyScalar(0.3); // darken significantly
+            footprint.material.color.copy(groundCol);
+            footprint.material.opacity = 0.2;
+
+            scene.add(footprint);
+            _footprintDecals.push({ mesh: footprint, age: 0 });
+
+            // Cap total footprints
+            if (_footprintDecals.length > 60) {
+                const old = _footprintDecals.shift();
+                scene.remove(old.mesh);
+                old.mesh.material.dispose();
+            }
+        }
+    }
+
+    // Age and fade footprints
+    for (let i = _footprintDecals.length - 1; i >= 0; i--) {
+        const fp = _footprintDecals[i];
+        fp.age += delta;
+        if (fp.age > 8) {
+            scene.remove(fp.mesh);
+            fp.mesh.material.dispose();
+            _footprintDecals.splice(i, 1);
+        } else if (fp.age > 5) {
+            fp.mesh.material.opacity = 0.2 * (1 - (fp.age - 5) / 3);
+        }
+    }
+
     // Clear just-pressed flags
     m.spaceJustPressed = false;
     m.ctrlJustPressed = false;

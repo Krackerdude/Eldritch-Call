@@ -69,10 +69,10 @@ const MOVE = {
     jumpForce: 0.42,
     gravity: 0.022,
     
-    // Slide
-    slideSpeed: 1.8,
-    slideDuration: 600,     // ms
-    slideCooldown: 200,     // ms
+    // Slide (tuned for grounded weight feel)
+    slideSpeed: 1.35,
+    slideDuration: 420,     // ms
+    slideCooldown: 250,     // ms
     slideHeight: 0.9,       // Camera height during slide
     slideTilt: 0.15,        // Camera tilt in radians
     
