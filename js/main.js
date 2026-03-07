@@ -47,6 +47,7 @@ import { CompassSystem } from './systems/CompassSystem.js';
 import { InteriorSystem } from './systems/InteriorSystem.js';
 import { HeldItemSystem } from './systems/HeldItemSystem.js';
 import { ParticleSystem } from './systems/ParticleSystem.js';
+import { VillageSystem } from './systems/VillageSystem.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // GAME STATE
@@ -185,6 +186,10 @@ function init() {
     // Initialize input
     initInput();
     
+    // Generate village (before spawning world objects so exclusion zones work)
+    VillageSystem.generate();
+    villageBuildings.push(...VillageSystem.getBuildings());
+
     // Spawn world
     spawnWorld();
     console.log('World spawned');
@@ -371,6 +376,9 @@ function initSystems() {
         camera
     });
 
+    // Initialize village system
+    VillageSystem.init({ scene, getHeight });
+
     // Initialize held item (first-person weapon/tool)
     HeldItemSystem.init({
         camera,
@@ -499,10 +507,11 @@ function initInput() {
 }
 
 function spawnWorld() {
-    // Spawn trees
+    // Spawn trees - skip village area and near buildings
     for (let i = 0; i < CONFIG.treeCount; i++) {
         const x = (Math.random() - 0.5) * CONFIG.terrainSize * 0.9;
         const z = (Math.random() - 0.5) * CONFIG.terrainSize * 0.9;
+        if (VillageSystem.isInVillage(x, z) || VillageSystem.isNearBuilding(x, z)) continue;
         const y = getHeight(x, z);
         if (y > 0.5) { // Above water
             const biome = BiomeSystem.getBiomeAt(x, z);
@@ -511,31 +520,34 @@ function spawnWorld() {
             ResourceSystem.createTree(x, y, z, 1.0 + Math.random() * 2.0, typeIdx);
         }
     }
-    
-    // Spawn rocks
+
+    // Spawn rocks - skip village area and near buildings
     for (let i = 0; i < CONFIG.rockCount; i++) {
         const x = (Math.random() - 0.5) * CONFIG.terrainSize * 0.9;
         const z = (Math.random() - 0.5) * CONFIG.terrainSize * 0.9;
+        if (VillageSystem.isInVillage(x, z) || VillageSystem.isNearBuilding(x, z)) continue;
         const y = getHeight(x, z);
         if (y > 0.3) {
             const typeIdx = Math.floor(Math.random() * 7);
             ResourceSystem.createRock(x, y, z, 0.8 + Math.random() * 1.5, typeIdx);
         }
     }
-    
-    // Spawn ground cover
+
+    // Spawn ground cover - skip village area
     for (let i = 0; i < CONFIG.grassInstances; i++) {
         const x = (Math.random() - 0.5) * CONFIG.terrainSize * 0.8;
         const z = (Math.random() - 0.5) * CONFIG.terrainSize * 0.8;
+        if (VillageSystem.isInVillage(x, z)) continue;
         const y = getHeight(x, z);
         if (y > 0.5 && y < 50) {
             ResourceSystem.createGrassTuft(x, y, z);
         }
     }
-    
+
     for (let i = 0; i < CONFIG.flowerInstances; i++) {
         const x = (Math.random() - 0.5) * CONFIG.terrainSize * 0.7;
         const z = (Math.random() - 0.5) * CONFIG.terrainSize * 0.7;
+        if (VillageSystem.isInVillage(x, z)) continue;
         const y = getHeight(x, z);
         if (y > 0.5 && y < 40) {
             ResourceSystem.createFlower(x, y, z);
@@ -574,8 +586,9 @@ function spawnPOIs() {
                 const x = (Math.random() - 0.5) * area;
                 const z = (Math.random() - 0.5) * area;
                 
-                // Skip if slope too steep or too close to center
+                // Skip if slope too steep, too close to center, or in village
                 if (getSlope(x, z) > 0.4 || Math.sqrt(x*x + z*z) < 50) continue;
+                if (VillageSystem.isInVillage(x, z)) continue;
                 
                 // Check distance from other POIs
                 let valid = true;
@@ -1027,6 +1040,14 @@ function updatePlayerMovement(delta) {
         }
 
         m.targetCamTilt = 0;
+    }
+
+    // Building collision - push player out of village buildings
+    if (!currentInterior && VillageSystem.checkBuildingCollision(player.position.x, player.position.z, 0.5)) {
+        player.position.x = px;
+        player.position.z = pz;
+        frameSpeedX = 0;
+        frameSpeedZ = 0;
     }
 
     // Gravity - apply constant downward pull even when "grounded" near slopes

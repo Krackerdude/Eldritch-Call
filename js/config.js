@@ -362,6 +362,13 @@ const BUILDING_TYPES = {
         shopType: 'general',
         npcCount: 1
     },
+    bank: {
+        name: 'Gilded Vault',
+        width: 16, depth: 18, height: 10,
+        interiorType: 'bank',
+        hasShop: false,
+        npcCount: 1
+    },
     house: {
         name: 'House',
         width: 10, depth: 12, height: 7,
